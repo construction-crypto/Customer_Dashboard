@@ -1,16 +1,57 @@
-<div class="grid-stack-item-content" data-block-id="builder">
-  <div class="widget-header">
-    <span class="font-bold text-xs text-slate-800">📝 Estimate Request Assistant</span>
-    <button type="button" onclick="removeBlock('builder', false)" class="text-slate-400 hover:text-slate-600 text-sm font-bold">&times;</button>
-  </div>
-  <div class="p-4 text-xs space-y-3 overflow-y-auto flex flex-col justify-between h-full">
-    <p class="text-slate-600">Combine paint swatches, trim options, and room dimensions to request a fast quote from our team.</p>
-    <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
-      <div class="flex justify-between items-center"><span class="font-bold text-slate-700">Active Requests:</span><span id="builder-active-count" class="font-black text-slate-900">0</span></div>
-      <p class="text-[11px] text-slate-500">Provide details on your vision, and we'll take care of the rest.</p>
+<div class="p-5 text-xs space-y-4 overflow-y-auto flex flex-col justify-between h-full bg-white rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-all duration-200">
+  <!-- Header Section -->
+  <div class="space-y-1.5">
+    <div class="flex items-center justify-between">
+      <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">
+        <span class="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></span>
+        Interactive Builder
+      </span>
+      <span class="text-[11px] font-medium text-slate-400">Est. turnaround: ~24hrs</span>
     </div>
-    <button type="button" onclick="openNewEstimateBuilderModal()" class="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition shadow-sm">
-      + Start New Estimate Request
-    </button>
+    <h3 class="font-bold text-slate-900 text-sm tracking-tight">Custom Project Builder</h3>
+    <p class="text-slate-500 text-[11px] leading-relaxed">
+      Configure swatches, surfaces, and room dimensions to generate an instant project specification.
+    </p>
   </div>
+
+  <!-- Active Requests Status Box -->
+  <div class="p-3.5 bg-slate-50/80 border border-slate-200/80 rounded-xl space-y-2">
+    <div class="flex justify-between items-center">
+      <div class="flex items-center gap-2">
+        <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+        <span class="font-semibold text-slate-700">Active Requests</span>
+      </div>
+      <span id="builder-active-count" class="px-2 py-0.5 bg-slate-900 text-white font-mono font-bold text-[11px] rounded-md shadow-xs">0</span>
+    </div>
+    <p class="text-[11px] text-slate-500 leading-snug">
+      Submitted specifications are actively under review by our estimation team.
+    </p>
+  </div>
+
+  <!-- Fast Preset Selection Badges -->
+  <div class="space-y-1.5">
+    <span class="text-[10px] uppercase tracking-wider font-bold text-slate-400">Popular Configurations</span>
+    <div class="flex flex-wrap gap-1.5">
+      <button type="button" onclick="openNewEstimateBuilderModal('interior')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-[10px] rounded-lg transition-colors border border-slate-200/60">
+        🎨 Interior Refresh
+      </button>
+      <button type="button" onclick="openNewEstimateBuilderModal('exterior')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-[10px] rounded-lg transition-colors border border-slate-200/60">
+        🏡 Exterior Siding
+      </button>
+      <button type="button" onclick="openNewEstimateBuilderModal('trim')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-[10px] rounded-lg transition-colors border border-slate-200/60">
+        🪟 Cabinets & Trim
+      </button>
+    </div>
+  </div>
+
+  <!-- Primary Action Button -->
+  <button 
+    type="button" 
+    onclick="openNewEstimateBuilderModal()" 
+    class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-semibold text-xs rounded-xl transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2 group">
+    <svg class="w-4 h-4 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+    </svg>
+    <span>Start New Estimate Request</span>
+  </button>
 </div>

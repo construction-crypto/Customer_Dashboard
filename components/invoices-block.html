@@ -1,21 +1,21 @@
-<div class="grid-stack-item-content" data-block-id="invoices">
-  <div class="widget-header">
-    <span class="font-bold text-xs text-slate-800">💳 Billing & Invoices</span>
-    <button type="button" onclick="removeBlock('invoices', false)" class="text-slate-400 hover:text-slate-600 text-sm font-bold">&times;</button>
+<div class="p-4 bg-white text-slate-800 space-y-3 h-full">
+  <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+    <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Financial Overview</h3>
+    <button type="button" onclick="window.PortalEngine.viewStatementHistory()" class="text-[11px] text-indigo-600 hover:text-indigo-700 font-medium">History →</button>
   </div>
-  <div class="p-4 text-xs space-y-3 overflow-y-auto">
-    <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg flex justify-between items-center">
-      <div>
-        <p class="text-[10px] uppercase font-bold text-slate-500">Balance Due</p>
-        <p class="text-lg font-black text-slate-800">$0.00</p>
-      </div>
-      <span class="text-xs font-bold text-emerald-700 bg-emerald-100 px-2 py-1 rounded">Account Paid Up</span>
+
+  <div class="grid grid-cols-2 gap-2">
+    <div class="p-2.5 bg-slate-50 border border-slate-200/60 rounded">
+      <span class="text-[10px] text-slate-400 font-medium uppercase tracking-wider block">Outstanding Balance</span>
+      <span id="financial-outstanding" class="text-base font-semibold text-slate-900 mt-0.5 block">--</span>
     </div>
-    <div class="space-y-2">
-      <p class="font-bold text-slate-700 text-[11px]">Recent Invoices</p>
-      <div id="invoices-list-container">
-        <p class="text-slate-400 text-[11px] italic py-2">No past invoice history found.</p>
-      </div>
+    <div class="p-2.5 bg-slate-50 border border-slate-200/60 rounded">
+      <span class="text-[10px] text-slate-400 font-medium uppercase tracking-wider block">Paid Year-to-Date</span>
+      <span id="financial-ytd" class="text-base font-semibold text-slate-900 mt-0.5 block">--</span>
     </div>
   </div>
+
+  <button id="pay-balance-btn" type="button" onclick="window.PortalEngine.initiatePayment()" class="w-full py-1.5 bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs rounded transition shadow-xs">
+    Pay Outstanding Balance
+  </button>
 </div>
