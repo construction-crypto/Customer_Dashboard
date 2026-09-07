@@ -1,0 +1,76 @@
+.weather-card {
+  width: 100%;
+  max-width: 420px;
+  background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 50%, #415a77 100%);
+  color: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.weather-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #a3cef1;
+}
+
+.location-badge {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+}
+
+.main-temp-block {
+  margin: 20px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.temp-display {
+  font-size: 4rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.condition-desc {
+  font-size: 1.25rem;
+  font-weight: 600;
+  text-align: right;
+  color: #e0e1dd;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.metric-pill {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 10px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.metric-label {
+  font-size: 0.7rem;
+  color: #a3cef1;
+  text-transform: uppercase;
+  display: block;
+}
+
+.metric-value {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-top: 4px;
+}

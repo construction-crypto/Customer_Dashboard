@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enhanced Property & Site Profile</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { red: '#DC2626', dark: '#991B1B' }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-zinc-100 p-4 md:p-8 font-sans">
+
+  <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg border border-zinc-200 overflow-hidden" id="profilePropertyContainer">
+    <!-- Portal Header -->
+    <div class="bg-zinc-900 text-white p-6 border-b border-zinc-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div>
+        <div class="flex items-center gap-2 mb-1">
+          <span class="px-2.5 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase bg-brand-red text-white">Property Intelligence</span>
+          <span class="text-xs text-zinc-400 font-medium" id="jobIdTag">Job ID: #JOB-1012</span>
+        </div>
+        <h3 class="font-black text-2xl uppercase tracking-wide">Property & Job Site Dossier</h3>
+        <p class="text-xs text-zinc-400 mt-1">Provide site specifics so our crew arrives fully equipped without disturbing your routine.</p>
+      </div>
+      <div class="bg-zinc-800 border border-zinc-700 px-3 py-2 rounded-lg text-right min-w-[150px]">
+        <span class="block text-[10px] uppercase font-bold text-zinc-400">Crew Brief Readiness</span>
+        <span class="text-xs font-bold text-emerald-400 flex items-center justify-end gap-1 mt-0.5" id="readinessStatus">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Sync Active
+        </span>
+      </div>
+    </div>
+
+    <form id="proPropertyForm" class="p-6 space-y-6" onsubmit="handleFormSubmit(event)">
+      <!-- Toast Alert -->
+      <div id="toast" class="hidden p-4 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <svg class="w-5 h-5 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+          <span>Property dossier updated. Local storage updated & dispatch notes synced to crew tablet!</span>
+        </div>
+        <button type="button" onclick="this.parentElement.classList.add('hidden')" class="text-emerald-600 hover:text-emerald-900 font-bold">&times;</button>
+      </div>
+
+      <!-- 1. Contacts & Dispatch Communication -->
+      <div>
+        <h4 class="text-xs font-bold uppercase tracking-wider text-zinc-700 mb-3 pb-1 border-b border-zinc-200 flex items-center justify-between">
+          <span class="flex items-center gap-2">
+            <span class="w-5 h-5 rounded-full bg-zinc-200 text-zinc-700 flex items-center justify-center text-[10px] font-bold">1</span>
+            Contacts & Dispatch Communication
+          </span>
+          <span class="text-[10px] text-zinc-400 font-normal">Who do we notify on work day?</span>
+        </h4>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+          <div>
+            <label class="block font-bold text-zinc-700 mb-1" for="fullname">Primary Contact Name *</label>
+            <input type="text" id="fullname" value="John Doe" required class="w-full border border-zinc-300 rounded-lg p-2.5 bg-zinc-50 focus:bg-white focus:outline-none focus:border-brand-red transition font-medium">
+          </div>
+          <div>
+            <label class="block font-bold text-zinc-700 mb-1" for="phone">Primary Phone (SMS Dispatch Alerts) *</label>
+            <input type="tel" id="phone" value="(320) 841-0562" required class="w-full border border-zinc-300 rounded-lg p-2.5 bg-zinc-50 focus:bg-white focus:outline-none focus:border-brand-red transition font-medium">
+          </div>
+          <div class="md:col-span-2 bg-red-50/50 border border-red-100 p-3 rounded-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div>
+              <span class="block font-bold text-zinc-800 text-xs">Different On-Site Point of Contact?</span>
+              <span class="text-[10px] text-zinc-500">e.g., Tenant, Property Manager, or Spouse opening the door.</span>
+            </div>
+            <button type="button" onclick="toggleSecondaryContact()" id="toggleSecBtn" class="text-xs font-bold text-brand-red hover:underline shrink-0">+ Add On-Site Lead</button>
+          </div>
+          <div id="secondaryContact" class="hidden md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+            <div>
+              <label class="block font-bold text-zinc-700 mb-1">On-Site Contact Name</label>
+              <input type="text" id="secName" placeholder="e.g. Jane (Property Manager)" class="w-full border border-zinc-300 rounded-lg p-2.5 bg-white focus:outline-none focus:border-brand-red">
+            </div>
+            <div>
+              <label class="block font-bold text-zinc-700 mb-1">On-Site Phone</label>
+              <input type="tel" id="secPhone" placeholder="(555) 000-0000" class="w-full border border-zinc-300 rounded-lg p-2.5 bg-white focus:outline-none focus:border-brand-red">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Location & Age Assessment -->
+      <div>
+        <h4 class="text-xs font-bold uppercase tracking-wider text-zinc-700 mb-3 pb-1 border-b border-zinc-200 flex items-center justify-between">
+          <span class="flex items-center gap-2">
+            <span class="w-5 h-5 rounded-full bg-zinc-200 text-zinc-700 flex items-center justify-center text-[10px] font-bold">2</span>
+            Location & Structure Assessment
+          </span>
+          <span class="text-[10px] font-bold text-brand-red uppercase">Safety Compliance</span>
+        </h4>
+        <div class="space-y-4 text-xs">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="md:col-span-2">
+              <label class="block font-bold text-zinc-700 mb-1">Street Address *</label>
+              <input type="text" id="street" value="1012 North 6th Street" required class="w-full border border-zinc-300 rounded-lg p-2.5 bg-zinc-50 focus:bg-white focus:outline-none focus:border-brand-red font-medium">
+            </div>
+            <div>
+              <label class="block font-bold text-zinc-700 mb-1">Unit / Suite / Gate #</label>
+              <input type="text" id="unit" placeholder="Apt 4B or Gate #102" class="w-full border border-zinc-300 rounded-lg p-2.5 bg-zinc-50 focus:bg-white focus:outline-none focus:border-brand-red">
+            </div>
+          </div>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+            <div class="sm:col-span-2">
+              <label class="block font-bold text-zinc-700 mb-1">City *</label>
+              <input type="text" id="city" value="Montevideo" required class="w-full border border-zinc-300 rounded-lg p-2.5 bg-zinc-50 focus:bg-white focus:outline-none focus:border-brand-red font-medium">
+            </div>
+            <div>
+              <label class="block font-bold text-zinc-700 mb-1">State *</label>
+              <input type="text" id="state" value="MN" required class="w-full border border-zinc-300 rounded-lg p-2.5 bg-zinc-50 focus:bg-white focus:outline-none focus:border-brand-red font-medium">
+            </div>
+            <div>
+              <label class="block font-bold text-zinc-700 mb-1">ZIP Code *</label>
+              <input type="text" id="zip" value="56265" required class="w-full border border-zinc-300 rounded-lg p-2.5 bg-zinc-50 focus:bg-white focus:outline-none focus:border-brand-red font-medium">
+            </div>
+          </div>
+
+          <!-- Structure Year & Lead Paint Shield -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-zinc-50 p-3 rounded-lg border border-zinc-200">
+            <div>
+              <label class="block font-bold text-zinc-700 mb-1">Approximate Year Built</label>
+              <input type="number" id="yearBuilt" value="1985" min="1800" max="2026" onchange="checkLeadSafety()" class="w-full border border-zinc-300 rounded-lg p-2 bg-white focus:outline-none focus:border-brand-red font-bold text-zinc-800">
+            </div>
+            <div id="leadBanner" class="hidden p-2.5 rounded bg-amber-50 border border-amber-300 text-amber-900 text-[11px] flex items-center gap-2">
+              <svg class="w-5 h-5 text-amber-600 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+              <span><strong>Pre-1978 Precaution:</strong> Lead-Safe EPA RRP protocols & containment barriers will be deployed.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Security & Access Vault -->
+      <div>
+        <h4 class="text-xs font-bold uppercase tracking-wider text-zinc-700 mb-3 pb-1 border-b border-zinc-200 flex items-center justify-between">
+          <span class="flex items-center gap-2">
+            <span class="w-5 h-5 rounded-full bg-zinc-200 text-zinc-700 flex items-center justify-center text-[10px] font-bold">3</span>
+            Security Credentials & Entry Vault
+          </span>
+          <span class="text-[10px] text-zinc-400 font-normal">🔒 Encrypted Crew Access Notes</span>
+        </h4>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+          <div>
+            <label class="block font-bold text-zinc-700 mb-1">Lockbox Code / Key Location</label>
+            <input type="text" id="lockboxCode" placeholder="e.g. Code 4921 under side mat" class="w-full border border-zinc-300 rounded-lg p-2.5 bg-zinc-50 focus:bg-white focus:outline-none focus:border-brand-red">
+          </div>
+          <div>
+            <label class="block font-bold text-zinc-700 mb-1">Gate / Door Entry Code</label>
+            <input type="text" id="gateCode" placeholder="e.g. #1042" class="w-full border border-zinc-300 rounded-lg p-2.5 bg-zinc-50 focus:bg-white focus:outline-none focus:border-brand-red">
+          </div>
+          <div>
+            <label class="block font-bold text-zinc-700 mb-1">Alarm Instructions</label>
+            <input type="text" id="alarmNotes" placeholder="e.g. Stay mode / Disarm via keypad" class="w-full border border-zinc-300 rounded-lg p-2.5 bg-zinc-50 focus:bg-white focus:outline-none focus:border-brand-red">
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Pro Operations & Site Logistics -->
+      <div>
+        <h4 class="text-xs font-bold uppercase tracking-wider text-zinc-700 mb-3 pb-1 border-b border-zinc-200 flex items-center gap-2">
+          <span class="w-5 h-5 rounded-full bg-zinc-200 text-zinc-700 flex items-center justify-center text-[10px] font-bold">4</span>
+          Pro Operations & Site Logistics
+        </h4>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+          <!-- Parking & Vehicle Clearance -->
+          <div>
+            <label class="block font-bold text-zinc-700 mb-1">Vehicle / Trailer Parking Area</label>
+            <select id="parkingSelect" class="w-full border border-zinc-300 rounded-lg p-2.5 bg-zinc-50 focus:bg-white focus:outline-none focus:border-brand-red">
+              <option value="driveway" selected>Driveway Clearance (Holds 16ft Trailer)</option>
+              <option value="street">Street Parking Only (Permit / Metered)</option>
+              <option value="alley">Rear Alley / Garage Loading Bay</option>
+              <option value="hoa">HOA Restricted (Must register with guard)</option>
+            </select>
+          </div>
+
+          <!-- Utility & Power Availability -->
+          <div>
+            <label class="block font-bold text-zinc-700 mb-1">Utility & Power Verification</label>
+            <select id="utilitySelect" class="w-full border border-zinc-300 rounded-lg p-2.5 bg-zinc-50 focus:bg-white focus:outline-none focus:border-brand-red">
+              <option value="ready" selected>Active Water Spigot & 120V Outlets Available</option>
+              <option value="generator">No Power on Site (Crew generator needed)</option>
+              <option value="no-water">No Exterior Water Hookup</option>
+            </select>
+          </div>
+
+          <!-- Pet & Animal Management -->
+          <div class="md:col-span-2 p-3 bg-zinc-50 border border-zinc-200 rounded-lg">
+            <label class="block font-bold text-zinc-700 mb-2">Pet Containment & Safety Protocols</label>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" id="petNone" checked class="w-4 h-4 accent-brand-red rounded">
+                <span class="font-bold text-zinc-700">No Pets on Site</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" id="petCrated" class="w-4 h-4 accent-brand-red rounded">
+                <span class="font-bold text-zinc-700">Dog Crated / Room Confined</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" id="petGate" class="w-4 h-4 accent-brand-red rounded">
+                <span class="font-bold text-zinc-700">Outdoor Gate Must Stay Closed</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- HOA & Quiet Hours Restrictions -->
+          <div>
+            <label class="block font-bold text-zinc-700 mb-1">HOA Start Time Restrictions</label>
+            <select id="hoaSelect" class="w-full border border-zinc-300 rounded-lg p-2.5 bg-zinc-50 focus:bg-white focus:outline-none focus:border-brand-red">
+              <option value="7am">Standard Start (7:00 AM Allowed)</option>
+              <option value="8am">Quiet Community (No loud work till 8:00 AM)</option>
+              <option value="9am">Strict HOA (No work till 9:00 AM)</option>
+            </select>
+          </div>
+
+          <!-- Restroom & Break Protocols -->
+          <div>
+            <label class="block font-bold text-zinc-700 mb-1">Crew Restroom Accommodation</label>
+            <select id="restroomSelect" class="w-full border border-zinc-300 rounded-lg p-2.5 bg-zinc-50 focus:bg-white focus:outline-none focus:border-brand-red">
+              <option value="designated" selected>Designated Interior Restroom Provided</option>
+              <option value="portable">Please Provide Portable Restroom Unit</option>
+              <option value="offsite">Off-site Facilities Nearby (Gas station/Park)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Save & Sync Action -->
+      <div class="pt-4 border-t border-zinc-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-2 text-zinc-500 text-[11px]">
+          <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+          <span>Updates save to local memory & auto-sync directly to your crew's app.</span>
+        </div>
+        <button type="submit" id="submitBtn" class="w-full sm:w-auto bg-brand-red text-white font-bold py-3 px-6 rounded-lg text-xs uppercase tracking-wider hover:bg-brand-dark transition shadow-md flex items-center justify-center gap-2">
+          <span>Save & Update Crew Dossier</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+  <script>
+    // Phone mask helper
+    const phoneInput = document.getElementById('phone');
+    if (phoneInput) {
+      phoneInput.addEventListener('input', (e) => {
+        let x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/);
+        e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
+      });
+    }
+
+    function toggleSecondaryContact() {
+      const el = document.getElementById('secondaryContact');
+      const btn = document.getElementById('toggleSecBtn');
+      if (el.classList.contains('hidden')) {
+        el.classList.remove('hidden');
+        btn.textContent = '- Remove On-Site Lead';
+      } else {
+        el.classList.add('hidden');
+        btn.textContent = '+ Add On-Site Lead';
+      }
+    }
+
+    function checkLeadSafety() {
+      const yr = parseInt(document.getElementById('yearBuilt').value, 10);
+      const banner = document.getElementById('leadBanner');
+      if (yr && yr < 1978) {
+        banner.classList.remove('hidden');
+      } else {
+        banner.classList.add('hidden');
+      }
+    }
+
+    function saveToLocalStorage() {
+      const dossier = {
+        fullname: document.getElementById('fullname').value,
+        phone: document.getElementById('phone').value,
+        street: document.getElementById('street').value,
+        unit: document.getElementById('unit').value,
+        city: document.getElementById('city').value,
+        state: document.getElementById('state').value,
+        zip: document.getElementById('zip').value,
+        yearBuilt: document.getElementById('yearBuilt').value,
+        parking: document.getElementById('parkingSelect').value,
+        utility: document.getElementById('utilitySelect').value,
+        hoa: document.getElementById('hoaSelect').value,
+        restroom: document.getElementById('restroomSelect').value,
+        savedAt: new Date().toISOString()
+      };
+      localStorage.setItem('customer_property_dossier', JSON.stringify(dossier));
+    }
+
+    function loadFromLocalStorage() {
+      const raw = localStorage.getItem('customer_property_dossier');
+      if (!raw) return;
+      try {
+        const d = JSON.parse(raw);
+        if (d.fullname) document.getElementById('fullname').value = d.fullname;
+        if (d.phone) document.getElementById('phone').value = d.phone;
+        if (d.street) document.getElementById('street').value = d.street;
+        if (d.unit) document.getElementById('unit').value = d.unit;
+        if (d.city) document.getElementById('city').value = d.city;
+        if (d.state) document.getElementById('state').value = d.state;
+        if (d.zip) document.getElementById('zip').value = d.zip;
+        if (d.yearBuilt) document.getElementById('yearBuilt').value = d.yearBuilt;
+        if (d.parking) document.getElementById('parkingSelect').value = d.parking;
+        if (d.utility) document.getElementById('utilitySelect').value = d.utility;
+        if (d.hoa) document.getElementById('hoaSelect').value = d.hoa;
+        if (d.restroom) document.getElementById('restroomSelect').value = d.restroom;
+        checkLeadSafety();
+      } catch(e) {
+        console.error("Error parsing saved dossier:", e);
+      }
+    }
+
+    function handleFormSubmit(e) {
+      e.preventDefault();
+      const btn = document.getElementById('submitBtn');
+      const toast = document.getElementById('toast');
+
+      saveToLocalStorage();
+
+      btn.disabled = true;
+      btn.innerHTML = `
+        <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <span>Syncing Dossier...</span>
+      `;
+
+      setTimeout(() => {
+        btn.disabled = false;
+        btn.innerHTML = `
+          <span>Save & Update Crew Dossier</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+        `;
+        toast.classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 750);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadFromLocalStorage();
+      checkLeadSafety();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+<div class="grid-stack-item-content" data-block-id="settings">
+  <div class="widget-header">
+    <span class="font-bold text-xs text-slate-800">⚙️ Profile Settings</span>
+    <button type="button" onclick="removeBlock('settings', false)" class="text-slate-400 hover:text-slate-600 text-sm font-bold">&times;</button>
+  </div>
+  <div class="p-4 text-xs space-y-3 overflow-y-auto">
+    <div>
+      <label class="font-bold text-slate-600 block mb-1">Full Name</label>
+      <input type="text" placeholder="John Doe" class="w-full border rounded p-2 font-medium border-slate-300">
+    </div>
+    <div>
+      <label class="font-bold text-slate-600 block mb-1">Property Address</label>
+      <input type="text" placeholder="123 Main St" class="w-full border rounded p-2 font-medium border-slate-300">
+    </div>
+    <button type="button" onclick="alert('Profile details updated.')" class="bg-slate-900 text-white font-bold px-3 py-2 rounded-lg hover:bg-slate-800 transition">Save Profile</button>
+  </div>
+</div>

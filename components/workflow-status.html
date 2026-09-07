@@ -1,0 +1,210 @@
+<div class="bg-white p-6 rounded-lg shadow border border-zinc-200">
+    <!-- Component Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
+        <div>
+            <div class="flex items-center space-x-2">
+                <h3 class="font-black text-xl uppercase tracking-wide text-zinc-900">Project Workflow Status</h3>
+                <span id="workflow-badge" class="text-[10px] bg-brand-red text-white font-extrabold px-2 py-0.5 rounded uppercase tracking-wider">
+                    Phase 2: On-Site Estimate
+                </span>
+            </div>
+            <p class="text-xs text-zinc-500 mt-0.5">Track real-time progress from bid request through final walkthrough.</p>
+        </div>
+        <div class="text-right">
+            <span class="text-xs text-zinc-400 font-bold block uppercase tracking-wider">Overall Completion</span>
+            <span id="workflow-percent-text" class="text-lg font-black text-emerald-600">35%</span>
+        </div>
+    </div>
+
+    <!-- Dynamic Progress Bar -->
+    <div class="w-full bg-zinc-100 h-2.5 rounded-full overflow-hidden mb-6">
+        <div id="workflow-progress-bar" class="bg-gradient-to-r from-emerald-500 to-brand-red h-full transition-all duration-500 ease-in-out" style="width: 35%;"></div>
+    </div>
+
+    <!-- Step Trackers Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 text-center text-xs font-bold mb-5" id="workflow-steps-container">
+        <!-- Steps rendered via JavaScript -->
+    </div>
+
+    <!-- Phase Detail Drawer -->
+    <div id="phase-detail-card" class="bg-zinc-50 border border-zinc-200 p-4 rounded-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4 transition-all">
+        <div class="space-y-1">
+            <div class="flex items-center space-x-2">
+                <span class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Active Step Details</span>
+                <span id="drawer-phase-num" class="text-[10px] bg-zinc-200 text-zinc-700 px-1.5 py-0.5 rounded font-mono font-bold">STAGE 2</span>
+            </div>
+            <h4 id="drawer-phase-title" class="font-extrabold text-base text-zinc-900 uppercase">On-Site Estimate & Scope Walkthrough</h4>
+            <p id="drawer-phase-desc" class="text-xs text-zinc-600">Jesse & crew evaluate surfaces, take precise measurements, and discuss color requirements directly on site.</p>
+            <div class="text-[11px] text-zinc-500 pt-1 flex items-center space-x-4">
+                <span>⏱️ Estimated Time: <strong>30-45 mins</strong></span>
+                <span>📅 Scheduled: <strong id="drawer-phase-date">In Progress</strong></span>
+            </div>
+        </div>
+
+        <div id="drawer-action-container" class="w-full md:w-auto flex-shrink-0">
+            <button onclick="document.getElementById('sec-schedule-assessment').scrollIntoView({ behavior: 'smooth' })" 
+                    class="w-full md:w-auto bg-brand-black hover:bg-zinc-800 text-white font-bold py-2 px-4 rounded text-xs uppercase tracking-wider transition">
+                Schedule Assessment →
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function initWorkflowStatusModule() {
+        // Workflow Stages Data Schema
+        const stages = [
+            {
+                id: 1,
+                name: "1. Bid Submitted",
+                short: "Bid Submitted",
+                status: "completed",
+                time: "1-2 Days",
+                date: "Completed",
+                desc: "Your initial project details and site requests have been received and recorded.",
+                actionText: "View Open Bids",
+                actionTarget: "sec-project-bids"
+            },
+            {
+                id: 2,
+                name: "2. On-Site Estimate",
+                short: "On-Site Estimate",
+                status: "active",
+                time: "30-45 Mins",
+                date: "In Progress",
+                desc: "Jesse & crew evaluate surfaces, take precise measurements, and discuss project scope on site.",
+                actionText: "Schedule / Confirm Time",
+                actionTarget: "sec-schedule-assessment"
+            },
+            {
+                id: 3,
+                name: "3. Color & Specs",
+                short: "Color & Specs",
+                status: "upcoming",
+                time: "Client Paced",
+                date: "Awaiting Input",
+                desc: "Select interior/exterior color codes, finishes, sheens, and paint brand preferences.",
+                actionText: "Open Color Studio",
+                actionTarget: "sec-paint-studio"
+            },
+            {
+                id: 4,
+                name: "4. Surface Prep & Paint",
+                short: "Prep & Paint",
+                status: "upcoming",
+                time: "2-5 Days",
+                date: "Scheduled post-approval",
+                desc: "Pressure washing, caulking, priming, masking, and high-precision painting application.",
+                actionText: "Check Pre-Job Checklist",
+                actionTarget: "sec-checklist-warranty"
+            },
+            {
+                id: 5,
+                name: "5. Final Walkthrough",
+                short: "Final Walkthrough",
+                status: "upcoming",
+                time: "1 Hour",
+                date: "Project Completion",
+                desc: "Final job site inspection with client, touch-ups, and signing off on 2-year warranty.",
+                actionText: "View Invoices & Warranty",
+                actionTarget: "sec-invoices-payments"
+            }
+        ];
+
+        let currentActiveStageId = 2; // Default starting active stage
+
+        // Function to calculate percentage progress
+        function calculateProgress(activeId) {
+            const stepWeight = 100 / stages.length;
+            const completedWeight = (activeId - 1) * stepWeight;
+            const activePartialWeight = stepWeight * 0.5;
+            return Math.round(completedWeight + activePartialWeight);
+        }
+
+        // Render Steps Grid
+        function renderWorkflowSteps() {
+            const container = document.getElementById("workflow-steps-container");
+            if (!container) return;
+
+            container.innerHTML = stages.map(stage => {
+                let cardClass = "";
+                let badgeClass = "";
+                let statusText = "";
+
+                if (stage.id < currentActiveStageId) {
+                    cardClass = "bg-emerald-50 border-emerald-500 text-emerald-800 cursor-pointer hover:bg-emerald-100";
+                    badgeClass = "text-emerald-600";
+                    statusText = "Completed";
+                } else if (stage.id === currentActiveStageId) {
+                    cardClass = "bg-brand-red text-white shadow-md ring-2 ring-red-300 cursor-pointer";
+                    badgeClass = "text-red-100";
+                    statusText = "In Progress";
+                } else {
+                    cardClass = "bg-zinc-50 border-zinc-200 text-zinc-400 cursor-pointer hover:bg-zinc-100";
+                    badgeClass = "text-zinc-400";
+                    statusText = "Upcoming";
+                }
+
+                return `
+                    <div onclick="selectWorkflowStage(${stage.id})" 
+                         class="p-3 rounded border transition-all text-left flex flex-col justify-between ${cardClass}">
+                        <div class="font-extrabold uppercase tracking-tight text-[11px] leading-tight mb-1">
+                            ${stage.name}
+                        </div>
+                        <span class="text-[10px] ${badgeClass} font-semibold uppercase">
+                            ${statusText}
+                        </span>
+                    </div>
+                `;
+            }).join("");
+
+            // Update Progress Bar
+            const percent = calculateProgress(currentActiveStageId);
+            const progressBar = document.getElementById("workflow-progress-bar");
+            const percentText = document.getElementById("workflow-percent-text");
+            if (progressBar) progressBar.style.width = percent + "%";
+            if (percentText) percentText.innerText = percent + "%";
+
+            // Update Header Badge
+            const activeStageObj = stages.find(s => s.id === currentActiveStageId);
+            const badgeEl = document.getElementById("workflow-badge");
+            if (badgeEl && activeStageObj) {
+                badgeEl.innerText = `PHASE ${activeStageObj.id}: ${activeStageObj.short}`;
+            }
+        }
+
+        // Expose stage click handler globally
+        window.selectWorkflowStage = function(stageId) {
+            const stage = stages.find(s => s.id === stageId);
+            if (!stage) return;
+
+            document.getElementById("drawer-phase-num").innerText = `STAGE ${stage.id}`;
+            document.getElementById("drawer-phase-title").innerText = stage.name;
+            document.getElementById("drawer-phase-desc").innerText = stage.desc;
+            document.getElementById("drawer-phase-date").innerText = stage.date;
+
+            const actionContainer = document.getElementById("drawer-action-container");
+            if (actionContainer) {
+                actionContainer.innerHTML = `
+                    <button onclick="document.getElementById('${stage.actionTarget}').scrollIntoView({ behavior: 'smooth' })" 
+                            class="w-full md:w-auto bg-brand-black hover:bg-zinc-800 text-white font-bold py-2 px-4 rounded text-xs uppercase tracking-wider transition">
+                        ${stage.actionText} →
+                    </button>
+                `;
+            }
+        };
+
+        // Listen for bid updates (from Section 1 header) to auto-sync workflow
+        window.addEventListener("bidsUpdated", function() {
+            const bids = JSON.parse(localStorage.getItem("customer_bids") || "[]");
+            if (bids.length > 0) {
+                currentActiveStageId = 2; // Keep on estimation phase for new bids
+                renderWorkflowSteps();
+            }
+        });
+
+        // Initial Render
+        renderWorkflowSteps();
+        selectWorkflowStage(currentActiveStageId);
+    })();
+</script>

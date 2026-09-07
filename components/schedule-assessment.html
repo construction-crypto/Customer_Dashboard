@@ -1,0 +1,173 @@
+<div class="bg-white p-6 rounded-lg shadow border border-zinc-200" id="schedule-assessment-card">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
+        <div>
+            <h3 class="font-black text-xl uppercase tracking-wide text-zinc-900">Schedule Site Assessment & Color Consult</h3>
+            <p class="text-xs text-zinc-500 mt-0.5">Pick a date & time window for Jesse & crew to inspect your job site in Montevideo or surrounding areas.</p>
+        </div>
+        <div id="booking-status-badge" class="hidden">
+            <span class="text-[10px] bg-emerald-100 border border-emerald-400 text-emerald-800 font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider flex items-center space-x-1">
+                <span>● Confirmed Booking</span>
+            </span>
+        </div>
+    </div>
+
+    <!-- Active Booking Alert Banner (Hidden by default until booked) -->
+    <div id="active-booking-banner" class="hidden bg-emerald-50 border border-emerald-300 p-4 rounded-lg mb-4">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <div>
+                <span class="text-[10px] font-bold text-emerald-600 uppercase tracking-wider block">Upcoming Scheduled Visit</span>
+                <h4 id="active-booking-title" class="font-bold text-emerald-900 text-sm">On-Site Estimate</h4>
+                <p id="active-booking-time" class="text-xs text-emerald-700 mt-0.5">August 12, 2026 | Morning Window (8:00 AM - 11:00 AM)</p>
+            </div>
+            <div class="flex space-x-2">
+                <button onclick="cancelAppointment()" class="text-xs bg-white hover:bg-red-50 text-red-600 font-bold px-3 py-1.5 border border-red-200 rounded uppercase">
+                    Cancel / Reschedule
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interactive Appointment Form -->
+    <form id="assessment-form" class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs" onsubmit="handleAssessmentBooking(event)">
+        <div>
+            <label class="block font-bold mb-1 text-zinc-700">Requested Service *</label>
+            <select id="appt-service" class="w-full border p-2.5 rounded bg-zinc-50 font-medium focus:ring-2 focus:ring-brand-red outline-none" required onchange="updateAvailableSlots()">
+                <option value="On-Site Painting Estimate">On-Site Painting Estimate</option>
+                <option value="Color & Finish Consult">Color & Finish Consult</option>
+                <option value="Pre-Job Surface Walkthrough">Pre-Job Surface Walkthrough</option>
+            </select>
+        </div>
+
+        <div>
+            <label class="block font-bold mb-1 text-zinc-700">Preferred Date *</label>
+            <input type="date" id="appt-date" class="w-full border p-2.5 rounded bg-zinc-50 font-medium focus:ring-2 focus:ring-brand-red outline-none" required onchange="validateDateAndSlots()">
+        </div>
+
+        <div>
+            <label class="block font-bold mb-1 text-zinc-700">Available Time Window *</label>
+            <select id="appt-slot" class="w-full border p-2.5 rounded bg-zinc-50 font-medium focus:ring-2 focus:ring-brand-red outline-none" required>
+                <!-- Slots dynamic -->
+            </select>
+        </div>
+
+        <div class="md:col-span-3">
+            <label class="block font-bold mb-1 text-zinc-700">Special Gate / Property Access Instructions (Optional)</label>
+            <input type="text" id="appt-notes" placeholder="e.g. Side gate code #1234, watch for dog in back yard..." class="w-full border p-2.5 rounded bg-zinc-50">
+        </div>
+
+        <div class="md:col-span-3 pt-2 flex items-center justify-between">
+            <span class="text-[11px] text-zinc-400 font-medium">⚡ On-site evaluations typically take 30-45 minutes.</span>
+            <button type="submit" id="submit-booking-btn" class="bg-brand-black hover:bg-zinc-800 text-white font-bold py-2.5 px-6 rounded uppercase tracking-wider transition text-xs">
+                Confirm Appointment Request
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    (function initScheduleAssessmentModule() {
+        const dateInput = document.getElementById("appt-date");
+        const slotSelect = document.getElementById("appt-slot");
+
+        // Restrict minimum selectable date to tomorrow
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const yyyy = tomorrow.getFullYear();
+        const mm = String(tomorrow.getMonth() + 1).padStart(2, '0');
+        const dd = String(tomorrow.getDate()).padStart(2, '0');
+        
+        if (dateInput) {
+            dateInput.min = `${yyyy}-${mm}-${dd}`;
+            dateInput.value = `${yyyy}-${mm}-${dd}`;
+        }
+
+        window.validateDateAndSlots = function() {
+            if (!dateInput.value) return;
+            const chosenDate = new Date(dateInput.value + "T00:00:00");
+            
+            // Disallow Sundays
+            if (chosenDate.getDay() === 0) {
+                alert("⚠️ Sundays are reserved for crew rest. Please select Monday through Saturday.");
+                dateInput.value = `${yyyy}-${mm}-${dd}`;
+            }
+            updateAvailableSlots();
+        };
+
+        window.updateAvailableSlots = function() {
+            const chosenDate = new Date(dateInput.value + "T00:00:00");
+            const isSaturday = chosenDate.getDay() === 6;
+
+            let slots = [
+                "Morning Window (8:00 AM - 11:00 AM)",
+                "Mid-Day Window (11:00 AM - 2:00 PM)",
+                "Afternoon Window (2:00 PM - 5:00 PM)"
+            ];
+
+            if (isSaturday) {
+                slots = [
+                    "Saturday Morning Window (8:30 AM - 11:30 AM)",
+                    "Saturday Early Afternoon (12:00 PM - 2:30 PM)"
+                ];
+            }
+
+            slotSelect.innerHTML = slots.map(slot => `<option value="${slot}">${slot}</option>`).join("");
+        };
+
+        window.handleAssessmentBooking = function(e) {
+            e.preventDefault();
+            const service = document.getElementById("appt-service").value;
+            const date = document.getElementById("appt-date").value;
+            const slot = document.getElementById("appt-slot").value;
+            const notes = document.getElementById("appt-notes").value;
+
+            const bookingData = {
+                service,
+                date,
+                slot,
+                notes,
+                timestamp: new Date().toISOString()
+            };
+
+            localStorage.setItem("customer_assessment_booking", JSON.stringify(bookingData));
+            renderActiveBookingState(bookingData);
+            
+            // Dispatch event for other components
+            window.dispatchEvent(new CustomEvent("appointmentBooked", { detail: bookingData }));
+        };
+
+        window.cancelAppointment = function() {
+            if (confirm("Are you sure you want to cancel or reschedule this appointment?")) {
+                localStorage.removeItem("customer_assessment_booking");
+                document.getElementById("active-booking-banner").classList.add("hidden");
+                document.getElementById("booking-status-badge").classList.add("hidden");
+                document.getElementById("assessment-form").classList.remove("hidden");
+            }
+        };
+
+        function renderActiveBookingState(booking) {
+            if (!booking) return;
+
+            const banner = document.getElementById("active-booking-banner");
+            const badge = document.getElementById("booking-status-badge");
+            const form = document.getElementById("assessment-form");
+
+            document.getElementById("active-booking-title").innerText = booking.service;
+            
+            const dateObj = new Date(booking.date + "T00:00:00");
+            const dateFormatted = dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+            document.getElementById("active-booking-time").innerText = `${dateFormatted} | ${booking.slot}`;
+
+            banner.classList.remove("hidden");
+            badge.classList.remove("hidden");
+            form.classList.add("hidden");
+        }
+
+        // Check for existing booking on load
+        const savedBooking = JSON.parse(localStorage.getItem("customer_assessment_booking") || "null");
+        if (savedBooking) {
+            renderActiveBookingState(savedBooking);
+        } else {
+            updateAvailableSlots();
+        }
+    })();
+</script>

@@ -1,0 +1,15 @@
+<div class="grid-stack-item-content" data-block-id="projects">
+  <div class="widget-header">
+    <span class="font-bold text-xs text-slate-800">📁 Active Projects & Requests</span>
+    <button type="button" onclick="removeBlock('projects', false)" class="text-slate-400 hover:text-slate-600 text-sm font-bold">&times;</button>
+  </div>
+  <div class="p-4 text-xs space-y-3 overflow-y-auto">
+    <div class="flex justify-between items-center border-b pb-2">
+      <span id="projects-count-heading" class="font-bold text-slate-800">Projects (0)</span>
+      <button type="button" onclick="openNewEstimateBuilderModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1 rounded text-xs shadow-sm">+ Request Quote</button>
+    </div>
+    <div id="project-list-container" class="space-y-2">
+      <p class="text-slate-500 italic p-4 text-center">No active projects found.</p>
+    </div>
+  </div>
+</div>

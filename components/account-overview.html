@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account Overview</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { red: '#DC2626', dark: '#991B1B' }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-zinc-100 p-4 md:p-8 font-sans">
+
+  <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg border border-zinc-200 overflow-hidden" id="accountOverviewCard">
+    
+    <!-- Top Header Bar -->
+    <div class="bg-zinc-900 text-white p-6 border-b border-zinc-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div>
+        <div class="flex items-center gap-2 mb-1">
+          <span class="px-2 py-0.5 rounded text-[10px] font-bold tracking-widest uppercase bg-amber-500 text-zinc-950">Verified Account</span>
+          <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-zinc-800 text-zinc-300 border border-zinc-700">Client Portal ID: #MN-7842</span>
+        </div>
+        <h3 class="font-black text-2xl uppercase tracking-wide">Account Overview</h3>
+      </div>
+      <button type="button" id="editToggleBtn" onclick="toggleEditMode()" class="bg-zinc-800 hover:bg-zinc-700 text-amber-400 font-bold text-xs px-4 py-2 rounded-lg uppercase tracking-wider transition border border-zinc-700 flex items-center gap-2">
+        <span id="editBtnIcon">✏️</span> <span id="editBtnText">Edit Profile</span>
+      </button>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="p-6 space-y-6">
+
+      <!-- Profile Summary Banner -->
+      <div class="bg-zinc-50 border border-zinc-200 p-4 rounded-xl flex items-center gap-4">
+        <div class="w-14 h-14 rounded-full bg-zinc-900 text-amber-400 font-black text-xl flex items-center justify-center shrink-0 border-2 border-amber-500" id="avatarInitials">
+          JB
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2">
+            <h4 class="font-black text-lg text-zinc-900 truncate" id="summaryAccountName">Jesse Bautista III</h4>
+            <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500" title="Active Client Account"></span>
+          </div>
+          <p class="text-xs text-zinc-500 truncate" id="summaryAccountEmail">jessebautistaiii@gmail.com</p>
+        </div>
+      </div>
+
+      <!-- Account Fields Grid -->
+      <form id="accountForm" onsubmit="saveAccountData(event)">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+          
+          <!-- Full Name -->
+          <div class="bg-zinc-50 p-3.5 rounded-lg border border-zinc-200">
+            <label class="text-zinc-400 uppercase text-[10px] font-bold block mb-1">Account Holder Name</label>
+            <div id="view-name" class="text-sm font-bold text-zinc-800">Jesse Bautista III</div>
+            <input type="text" id="input-name" class="hidden w-full bg-white border border-zinc-300 rounded px-2.5 py-1.5 text-sm font-bold text-zinc-800 focus:outline-none focus:border-amber-500" value="Jesse Bautista III" required>
+          </div>
+
+          <!-- Email Address -->
+          <div class="bg-zinc-50 p-3.5 rounded-lg border border-zinc-200">
+            <label class="text-zinc-400 uppercase text-[10px] font-bold block mb-1">Email Address</label>
+            <div id="view-email" class="text-sm font-semibold text-zinc-700">jessebautistaiii@gmail.com</div>
+            <input type="email" id="input-email" class="hidden w-full bg-white border border-zinc-300 rounded px-2.5 py-1.5 text-xs text-zinc-800 focus:outline-none focus:border-amber-500" value="jessebautistaiii@gmail.com" required>
+          </div>
+
+          <!-- Phone Number -->
+          <div class="bg-zinc-50 p-3.5 rounded-lg border border-zinc-200">
+            <label class="text-zinc-400 uppercase text-[10px] font-bold block mb-1">Saved Primary Phone</label>
+            <div id="view-phone" class="text-sm font-semibold text-zinc-700">(320) 841-0562</div>
+            <input type="tel" id="input-phone" class="hidden w-full bg-white border border-zinc-300 rounded px-2.5 py-1.5 text-xs text-zinc-800 focus:outline-none focus:border-amber-500" value="(320) 841-0562" required>
+          </div>
+
+          <!-- Primary Location -->
+          <div class="bg-zinc-50 p-3.5 rounded-lg border border-zinc-200">
+            <label class="text-zinc-400 uppercase text-[10px] font-bold block mb-1">Primary Property Location</label>
+            <div id="view-location" class="text-sm font-semibold text-zinc-700">Montevideo, MN</div>
+            <input type="text" id="input-location" class="hidden w-full bg-white border border-zinc-300 rounded px-2.5 py-1.5 text-xs text-zinc-800 focus:outline-none focus:border-amber-500" value="Montevideo, MN" required>
+          </div>
+
+        </div>
+
+        <!-- Assigned Contractor Badge -->
+        <div class="mt-4 pt-4 border-t border-zinc-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <div>
+            <span class="text-zinc-400 uppercase text-[10px] font-bold block">Assigned Lead Contractor</span>
+            <span class="font-bold text-zinc-900 text-sm flex items-center gap-1.5 mt-0.5">
+              <span>🛠️ Jesse Bautista III</span>
+              <span class="text-xs text-zinc-500 font-normal">(Montevideo, MN Regional Division)</span>
+            </span>
+          </div>
+          
+          <!-- Edit Form Action Buttons -->
+          <div id="formActions" class="hidden flex items-center gap-2 w-full sm:w-auto">
+            <button type="button" onclick="toggleEditMode()" class="w-1/2 sm:w-auto bg-zinc-200 hover:bg-zinc-300 text-zinc-800 font-bold text-xs px-4 py-2 rounded-lg uppercase tracking-wider transition">Cancel</button>
+            <button type="submit" class="w-1/2 sm:w-auto bg-amber-500 hover:bg-amber-400 text-zinc-950 font-black text-xs px-5 py-2 rounded-lg uppercase tracking-wider transition">Save Profile</button>
+          </div>
+        </div>
+      </form>
+
+    </div>
+
+  </div>
+
+  <script>
+    let isEditing = false;
+
+    function toggleEditMode() {
+      isEditing = !isEditing;
+      const fields = ['name', 'email', 'phone', 'location'];
+      
+      fields.forEach(field => {
+        const viewEl = document.getElementById(`view-${field}`);
+        const inputEl = document.getElementById(`input-${field}`);
+        if (isEditing) {
+          viewEl.classList.add('hidden');
+          inputEl.classList.remove('hidden');
+        } else {
+          viewEl.classList.remove('hidden');
+          inputEl.classList.add('hidden');
+        }
+      });
+
+      const actions = document.getElementById('formActions');
+      const editBtnText = document.getElementById('editBtnText');
+      const editBtnIcon = document.getElementById('editBtnIcon');
+
+      if (isEditing) {
+        actions.classList.remove('hidden');
+        editBtnText.textContent = 'Editing Mode';
+        editBtnIcon.textContent = '⚙️';
+      } else {
+        actions.classList.add('hidden');
+        editBtnText.textContent = 'Edit Profile';
+        editBtnIcon.textContent = '✏️';
+      }
+    }
+
+    function updateAvatarInitials(name) {
+      const parts = name.trim().split(' ');
+      let initials = 'JB';
+      if (parts.length >= 2) {
+        initials = (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+      } else if (parts.length === 1 && parts[0].length > 0) {
+        initials = parts[0][0].toUpperCase();
+      }
+      document.getElementById('avatarInitials').textContent = initials;
+    }
+
+    function saveAccountData(e) {
+      e.preventDefault();
+
+      const name = document.getElementById('input-name').value;
+      const email = document.getElementById('input-email').value;
+      const phone = document.getElementById('input-phone').value;
+      const location = document.getElementById('input-location').value;
+
+      // Update View DOM Elements
+      document.getElementById('view-name').textContent = name;
+      document.getElementById('view-email').textContent = email;
+      document.getElementById('view-phone').textContent = phone;
+      document.getElementById('view-location').textContent = location;
+
+      document.getElementById('summaryAccountName').textContent = name;
+      document.getElementById('summaryAccountEmail').textContent = email;
+
+      updateAvatarInitials(name);
+
+      // Save sync object to localStorage
+      const profileData = { name, email, phone, location };
+      localStorage.setItem('customer_account_profile', JSON.stringify(profileData));
+
+      // Extract city/state if applicable to update property dossier for weather sync
+      const locParts = location.split(',');
+      const dossier = {
+        city: locParts[0] ? locParts[0].trim() : location,
+        state: locParts[1] ? locParts[1].trim() : ''
+      };
+      localStorage.setItem('customer_property_dossier', JSON.stringify(dossier));
+
+      toggleEditMode();
+    }
+
+    function loadSavedAccountData() {
+      const savedProfile = localStorage.getItem('customer_account_profile');
+      if (savedProfile) {
+        try {
+          const profile = JSON.parse(savedProfile);
+          if (profile.name) {
+            document.getElementById('view-name').textContent = profile.name;
+            document.getElementById('input-name').value = profile.name;
+            document.getElementById('summaryAccountName').textContent = profile.name;
+            updateAvatarInitials(profile.name);
+          }
+          if (profile.email) {
+            document.getElementById('view-email').textContent = profile.email;
+            document.getElementById('input-email').value = profile.email;
+            document.getElementById('summaryAccountEmail').textContent = profile.email;
+          }
+          if (profile.phone) {
+            document.getElementById('view-phone').textContent = profile.phone;
+            document.getElementById('input-phone').value = profile.phone;
+          }
+          if (profile.location) {
+            document.getElementById('view-location').textContent = profile.location;
+            document.getElementById('input-location').value = profile.location;
+          }
+        } catch(e) {
+          console.error("Error loading account profile:", e);
+        }
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadSavedAccountData);
+  </script>
+</body>
+</html>

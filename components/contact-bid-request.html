@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Official Bid Request Form</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              red: '#DC2626',
+              dark: '#991B1B'
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-zinc-100 p-4 md:p-8 font-sans">
+
+  <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg border border-zinc-200 overflow-hidden" id="bidRequestContainer">
+    <!-- Header -->
+    <div class="bg-zinc-900 text-white p-6 border-b border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div>
+        <span class="inline-block px-2.5 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase bg-brand-red text-white mb-2">Schedule Consultation</span>
+        <h3 class="font-black text-2xl uppercase tracking-wide">Request On-Site Bid</h3>
+        <p class="text-xs text-zinc-400 mt-1">Get an exact, binding estimate with zero hidden fees. Free on-site assessment included.</p>
+      </div>
+      <div class="flex items-center gap-2 bg-zinc-800 border border-zinc-700 px-3 py-2 rounded-lg text-xs">
+        <svg class="w-5 h-5 text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <span class="text-zinc-300 font-semibold">Free On-Site Assessment</span>
+      </div>
+    </div>
+
+    <!-- Active Estimate Banner (Auto-populated if present) -->
+    <div id="savedEstimateBanner" class="hidden bg-red-50 border-b border-brand-red/20 p-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-brand-red animate-pulse"></span>
+        <span class="font-bold text-zinc-800">Attached Calculator Estimate:</span>
+        <span class="font-black text-brand-red" id="bannerEstTotal">$0</span>
+        <span class="text-zinc-500 text-[11px]" id="bannerEstScope">(Interior Walls - 500 sq ft)</span>
+      </div>
+      <button type="button" onclick="clearAttachedEstimate()" class="text-[11px] font-bold text-zinc-500 hover:text-zinc-800 underline">Remove Attached Estimate</button>
+    </div>
+
+    <!-- Main Form Area -->
+    <form id="bidRequestForm" onsubmit="handleFormSubmit(event)" class="p-6 space-y-6">
+      
+      <!-- Contact Info Grid -->
+      <div>
+        <h4 class="text-xs font-bold uppercase tracking-wider text-zinc-700 mb-3 pb-1 border-b border-zinc-200">1. Contact Information</h4>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-zinc-700 mb-1">Full Name *</label>
+            <input type="text" required placeholder="John Doe" class="w-full border border-zinc-300 rounded-lg p-2.5 text-xs focus:ring-2 focus:ring-brand-red focus:border-brand-red outline-none bg-zinc-50">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-zinc-700 mb-1">Phone Number *</label>
+            <input type="tel" required placeholder="(555) 000-0000" class="w-full border border-zinc-300 rounded-lg p-2.5 text-xs focus:ring-2 focus:ring-brand-red focus:border-brand-red outline-none bg-zinc-50">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-zinc-700 mb-1">Email Address *</label>
+            <input type="email" required placeholder="john@example.com" class="w-full border border-zinc-300 rounded-lg p-2.5 text-xs focus:ring-2 focus:ring-brand-red focus:border-brand-red outline-none bg-zinc-50">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-zinc-700 mb-1">Property Address *</label>
+            <input type="text" required placeholder="123 Main St, Montevideo, MN" class="w-full border border-zinc-300 rounded-lg p-2.5 text-xs focus:ring-2 focus:ring-brand-red focus:border-brand-red outline-none bg-zinc-50">
+          </div>
+        </div>
+      </div>
+
+      <!-- Project Preferences Grid -->
+      <div>
+        <h4 class="text-xs font-bold uppercase tracking-wider text-zinc-700 mb-3 pb-1 border-b border-zinc-200">2. Project Specifications</h4>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-zinc-700 mb-1">Primary Scope</label>
+            <select id="formScopeSelect" class="w-full border border-zinc-300 rounded-lg p-2.5 text-xs font-medium bg-zinc-50 focus:ring-2 focus:ring-brand-red outline-none">
+              <option value="interior">Interior Painting</option>
+              <option value="exterior">Exterior Siding / Trim</option>
+              <option value="cabinets">Cabinet Refinishing</option>
+              <option value="deck">Deck / Fence Staining</option>
+              <option value="commercial">Commercial Space</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-zinc-700 mb-1">Preferred Start Frame</label>
+            <select class="w-full border border-zinc-300 rounded-lg p-2.5 text-xs font-medium bg-zinc-50 focus:ring-2 focus:ring-brand-red outline-none">
+              <option value="asap">ASAP (Next Available)</option>
+              <option value="2weeks">Within 2 Weeks</option>
+              <option value="month">Within Next Month</option>
+              <option value="flexible">Flexible / Planning Phase</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-zinc-700 mb-1">Target Budget Range</label>
+            <select id="formBudgetSelect" class="w-full border border-zinc-300 rounded-lg p-2.5 text-xs font-medium bg-zinc-50 focus:ring-2 focus:ring-brand-red outline-none">
+              <option value="under1k">Under $1,000</option>
+              <option value="1k-3k">$1,000 - $3,000</option>
+              <option value="3k-5k">$3,000 - $5,000</option>
+              <option value="5kplus">$5,000+</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Photos & Notes -->
+      <div>
+        <h4 class="text-xs font-bold uppercase tracking-wider text-zinc-700 mb-3 pb-1 border-b border-zinc-200">3. Project Details & Photos (Optional)</h4>
+        <div class="space-y-3">
+          <textarea rows="3" placeholder="Describe specific surfaces, ceiling heights, trim details, or key questions..." class="w-full border border-zinc-300 rounded-lg p-2.5 text-xs focus:ring-2 focus:ring-brand-red outline-none bg-zinc-50 resize-none"></textarea>
+          
+          <div class="border-2 border-dashed border-zinc-300 rounded-lg p-4 text-center bg-zinc-50/50 hover:bg-zinc-50 cursor-pointer transition">
+            <svg class="w-8 h-8 text-zinc-400 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+            <span class="block text-xs font-bold text-zinc-700">Click or drag photos of your space here</span>
+            <span class="block text-[10px] text-zinc-400 mt-0.5">JPG, PNG up to 10MB each (Helps expedite virtual initial evaluation)</span>
+            <input type="file" multiple accept="image/*" class="hidden" id="photoUpload">
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit CTA -->
+      <div class="pt-2">
+        <button type="submit" class="w-full bg-brand-red hover:bg-brand-dark text-white font-black py-3.5 px-6 rounded-lg uppercase tracking-wider text-xs transition shadow-md flex items-center justify-center gap-2">
+          <span>Submit Bid Request & Lock In Rate</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+        </button>
+        <p class="text-[10px] text-zinc-400 text-center mt-2">🔒 Your information is confidential and will never be shared with third parties.</p>
+      </div>
+    </form>
+
+    <!-- Success Confirmation View -->
+    <div id="formSuccessView" class="hidden p-8 text-center space-y-4">
+      <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
+        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+      </div>
+      <h3 class="text-2xl font-black uppercase text-zinc-900">Bid Request Received!</h3>
+      <p class="text-xs text-zinc-600 max-w-md mx-auto">Thank you for submitting your project details. Our team will review your specifications and reach out within 24 business hours to schedule your physical walk-through.</p>
+      <button type="button" onclick="resetFormView()" class="px-5 py-2.5 bg-zinc-900 text-white font-bold text-xs uppercase tracking-wider rounded-lg hover:bg-zinc-800 transition">
+        Submit Another Request
+      </button>
+    </div>
+
+  </div>
+
+  <script>
+    function loadSavedEstimate() {
+      const rawData = localStorage.getItem('customer_budget_estimate');
+      if (!rawData) return;
+
+      try {
+        const est = JSON.parse(rawData);
+        const banner = document.getElementById('savedEstimateBanner');
+        const estTotal = document.getElementById('bannerEstTotal');
+        const estScope = document.getElementById('bannerEstScope');
+        
+        if (banner && estTotal && estScope) {
+          estTotal.textContent = est.estimatedTotal;
+          estScope.textContent = `(${est.projectType.toUpperCase()} - ${est.sqft} sq ft)`;
+          banner.classList.remove('hidden');
+        }
+      } catch(e) {
+        console.error("Error reading saved estimate:", e);
+      }
+    }
+
+    function clearAttachedEstimate() {
+      localStorage.removeItem('customer_budget_estimate');
+      document.getElementById('savedEstimateBanner').classList.add('hidden');
+    }
+
+    function handleFormSubmit(e) {
+      e.preventDefault();
+      document.getElementById('bidRequestForm').classList.add('hidden');
+      document.getElementById('savedEstimateBanner').classList.add('hidden');
+      document.getElementById('formSuccessView').classList.remove('hidden');
+    }
+
+    function resetFormView() {
+      document.getElementById('bidRequestForm').reset();
+      document.getElementById('bidRequestForm').classList.remove('hidden');
+      document.getElementById('formSuccessView').classList.add('hidden');
+      loadSavedEstimate();
+    }
+
+    window.addEventListener('budgetSaved', loadSavedEstimate);
+    document.addEventListener('DOMContentLoaded', loadSavedEstimate);
+  </script>
+</body>
+</html>

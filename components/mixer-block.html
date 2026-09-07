@@ -1,0 +1,25 @@
+<div class="grid-stack-item-content" data-block-id="mixer">
+  <div class="widget-header">
+    <span class="font-bold text-xs text-slate-800">🎨 Interactive Paint Visualizer</span>
+    <button type="button" onclick="removeBlock('mixer', false)" class="text-slate-400 hover:text-slate-600 text-sm font-bold">&times;</button>
+  </div>
+  <div class="p-3.5 space-y-3 text-xs overflow-y-auto flex flex-col justify-between h-full">
+    <div class="flex gap-1 border-b border-slate-200 pb-2">
+      <button type="button" id="tab-sherwin" onclick="renderSwatches('sherwin')" class="px-2.5 py-1 text-[11px] font-bold rounded-lg border bg-slate-900 text-white border-slate-900">Sherwin-Williams</button>
+      <button type="button" id="tab-benjamin" onclick="renderSwatches('benjamin')" class="px-2.5 py-1 text-[11px] font-bold rounded-lg border bg-slate-100 text-slate-700 hover:bg-slate-200">Benjamin Moore</button>
+    </div>
+    <div class="relative rounded-xl overflow-hidden border border-slate-200" style="height: 90px;">
+      <div id="visualizer-wall" class="absolute inset-0 transition-colors duration-500" style="background-color: #1d2b3a;"></div>
+      <div class="absolute bottom-2 left-2 bg-black/60 backdrop-blur-md px-2 py-0.5 rounded text-[10px] text-white font-mono" id="wall-hex-label">#1D2B3A</div>
+    </div>
+    <div id="paint-swatches-grid" class="grid grid-cols-2 gap-2"></div>
+    <div class="bg-slate-50 border p-2.5 rounded-xl flex items-center justify-between gap-2 mt-auto">
+      <div class="truncate">
+        <p id="action-color-title" class="font-bold text-slate-800 text-xs truncate">Naval - SW 6244</p>
+      </div>
+      <button type="button" onclick="saveColorToEstimate()" class="px-3 py-1.5 text-[10px] font-bold bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition">
+        + Attach Swatch
+      </button>
+    </div>
+  </div>
+</div>

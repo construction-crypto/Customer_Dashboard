@@ -1,0 +1,21 @@
+<div class="grid-stack-item-content" data-block-id="invoices">
+  <div class="widget-header">
+    <span class="font-bold text-xs text-slate-800">💳 Billing & Invoices</span>
+    <button type="button" onclick="removeBlock('invoices', false)" class="text-slate-400 hover:text-slate-600 text-sm font-bold">&times;</button>
+  </div>
+  <div class="p-4 text-xs space-y-3 overflow-y-auto">
+    <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg flex justify-between items-center">
+      <div>
+        <p class="text-[10px] uppercase font-bold text-slate-500">Balance Due</p>
+        <p class="text-lg font-black text-slate-800">$0.00</p>
+      </div>
+      <span class="text-xs font-bold text-emerald-700 bg-emerald-100 px-2 py-1 rounded">Account Paid Up</span>
+    </div>
+    <div class="space-y-2">
+      <p class="font-bold text-slate-700 text-[11px]">Recent Invoices</p>
+      <div id="invoices-list-container">
+        <p class="text-slate-400 text-[11px] italic py-2">No past invoice history found.</p>
+      </div>
+    </div>
+  </div>
+</div>

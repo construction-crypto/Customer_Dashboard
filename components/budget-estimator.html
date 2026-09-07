@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Instant Budget Estimator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              red: '#DC2626',
+              dark: '#991B1B'
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-zinc-100 p-4 md:p-8 font-sans">
+
+  <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg border border-zinc-200 overflow-hidden" id="estimator">
+    <!-- Header -->
+    <div class="bg-zinc-900 text-white p-6 border-b border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div>
+        <span class="inline-block px-2.5 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase bg-brand-red text-white mb-2">Interactive Tool</span>
+        <h3 class="font-black text-2xl uppercase tracking-wide">Instant Budget Estimator</h3>
+        <p class="text-xs text-zinc-400 mt-1">Adjust parameters for a real-time price range before requesting an official bid.</p>
+      </div>
+      <div class="text-right flex sm:flex-col items-center sm:items-end justify-between sm:justify-center border-t sm:border-t-0 border-zinc-800 pt-3 sm:pt-0">
+        <span class="text-[10px] uppercase font-bold text-zinc-400">Estimated Total</span>
+        <span class="text-3xl font-black text-white" id="estimateDisplay">$0</span>
+      </div>
+    </div>
+
+    <div class="p-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Controls Column -->
+      <div class="lg:col-span-2 space-y-6">
+        
+        <!-- Project Scope -->
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-zinc-700 mb-2">1. Project Scope</label>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2" id="scopeSelector">
+            <button type="button" data-rate="2.25" data-scope="Interior Walls" class="scope-btn active border-2 border-brand-red bg-red-50 text-brand-red p-3 rounded-lg text-xs font-bold text-center transition">
+              Interior Walls
+            </button>
+            <button type="button" data-rate="3.50" data-scope="Exterior Siding" class="scope-btn border-2 border-zinc-200 hover:border-zinc-300 p-3 rounded-lg text-xs font-bold text-center text-zinc-600 transition">
+              Exterior Siding
+            </button>
+            <button type="button" data-rate="4.80" data-scope="Cabinets" class="scope-btn border-2 border-zinc-200 hover:border-zinc-300 p-3 rounded-lg text-xs font-bold text-center text-zinc-600 transition">
+              Cabinets
+            </button>
+            <button type="button" data-rate="3.10" data-scope="Deck & Staining" class="scope-btn border-2 border-zinc-200 hover:border-zinc-300 p-3 rounded-lg text-xs font-bold text-center text-zinc-600 transition">
+              Deck & Staining
+            </button>
+          </div>
+        </div>
+
+        <!-- Square Footage Slider -->
+        <div>
+          <div class="flex justify-between items-center mb-2">
+            <label class="text-xs font-bold uppercase tracking-wider text-zinc-700">2. Total Area (Sq Ft)</label>
+            <div class="flex items-center gap-1">
+              <input type="number" id="sqftInput" value="500" min="100" max="5000" class="w-20 border border-zinc-300 rounded px-2 py-1 text-right text-xs font-bold text-zinc-800 focus:outline-none focus:border-brand-red">
+              <span class="text-xs text-zinc-500 font-bold">sq ft</span>
+            </div>
+          </div>
+          <input type="range" id="sqftSlider" min="100" max="5000" value="500" step="50" class="w-full accent-brand-red h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer">
+          <div class="flex justify-between text-[10px] text-zinc-400 mt-1 font-bold">
+            <span>100 sq ft</span>
+            <span>2,500 sq ft</span>
+            <span>5,000 sq ft</span>
+          </div>
+        </div>
+
+        <!-- Additional Options Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- Paint Grade -->
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-zinc-700 mb-2">3. Paint Quality</label>
+            <select id="paintGrade" class="w-full border border-zinc-300 rounded-lg p-2.5 text-xs font-medium bg-zinc-50 focus:outline-none focus:border-brand-red">
+              <option value="0">Standard / Builder Grade</option>
+              <option value="0.45" selected>Premium Low-VOC (Recommended)</option>
+              <option value="0.85">Ultra-Durable Scuff-X Grade</option>
+            </select>
+          </div>
+
+          <!-- Prep & Repair -->
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-zinc-700 mb-2">4. Prep & Repairs</label>
+            <select id="prepLevel" class="w-full border border-zinc-300 rounded-lg p-2.5 text-xs font-medium bg-zinc-50 focus:outline-none focus:border-brand-red">
+              <option value="0">Basic Prep (Light Sanding & Wipe)</option>
+              <option value="0.35" selected>Standard (Nail Holes & Caulking)</option>
+              <option value="0.75">Extensive (Drywall Patching & Trim)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Add-on Toggles -->
+        <div class="border-t border-zinc-100 pt-4">
+          <label class="block text-xs font-bold uppercase tracking-wider text-zinc-700 mb-3">5. Additional Details</label>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <label class="flex items-center gap-3 p-3 rounded-lg border border-zinc-200 cursor-pointer hover:bg-zinc-50 transition">
+              <input type="checkbox" id="highCeilings" class="w-4 h-4 accent-brand-red rounded">
+              <div>
+                <span class="block text-xs font-bold text-zinc-800">High / Vaulted Ceilings</span>
+                <span class="block text-[10px] text-zinc-500">+15% labor multiplier</span>
+              </div>
+            </label>
+            <label class="flex items-center gap-3 p-3 rounded-lg border border-zinc-200 cursor-pointer hover:bg-zinc-50 transition">
+              <input type="checkbox" id="includeDoorsTrim" class="w-4 h-4 accent-brand-red rounded">
+              <div>
+                <span class="block text-xs font-bold text-zinc-800">Baseboards & Doors</span>
+                <span class="block text-[10px] text-zinc-500">+20% material & labor</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Live Summary & Conversion Panel -->
+      <div class="bg-zinc-50 p-5 rounded-xl border border-zinc-200 flex flex-col justify-between">
+        <div>
+          <h4 class="text-xs font-bold uppercase tracking-wider text-zinc-700 mb-4 pb-2 border-b border-zinc-200">
+            Cost Breakdown
+          </h4>
+
+          <div class="space-y-3 mb-6">
+            <div>
+              <div class="flex justify-between text-xs text-zinc-600 mb-1">
+                <span>Labor & Prep Work</span>
+                <span class="font-bold text-zinc-800" id="laborCost">$0</span>
+              </div>
+              <div class="w-full bg-zinc-200 h-1.5 rounded-full overflow-hidden">
+                <div id="laborBar" class="bg-zinc-700 h-full transition-all duration-300" style="width: 65%"></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs text-zinc-600 mb-1">
+                <span>Materials & Paint</span>
+                <span class="font-bold text-zinc-800" id="materialCost">$0</span>
+              </div>
+              <div class="w-full bg-zinc-200 h-1.5 rounded-full overflow-hidden">
+                <div id="materialBar" class="bg-brand-red h-full transition-all duration-300" style="width: 35%"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-3 bg-white rounded-lg border border-zinc-200 space-y-2 text-xs mb-6">
+            <div class="flex justify-between text-zinc-500">
+              <span>Selected Scope:</span>
+              <span class="font-bold text-zinc-800" id="summaryScope">Interior Walls</span>
+            </div>
+            <div class="flex justify-between text-zinc-500">
+              <span>Coverage Area:</span>
+              <span class="font-bold text-zinc-800" id="summaryArea">500 sq ft</span>
+            </div>
+            <div class="flex justify-between text-zinc-500">
+              <span>Estimated Timeline:</span>
+              <span class="font-bold text-zinc-800" id="summaryDays">1 - 2 Days</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- CTA Section -->
+        <div class="space-y-2">
+          <button class="w-full bg-brand-red text-white font-bold py-3 px-4 rounded-lg text-xs uppercase tracking-wider hover:bg-brand-dark transition shadow-md flex items-center justify-center gap-2">
+            <span>Book Official On-Site Bid</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+          </button>
+          <p class="text-[10px] text-zinc-400 text-center">Estimates are binding only upon physical inspection.</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Elements
+      const sqftSlider = document.getElementById('sqftSlider');
+      const sqftInput = document.getElementById('sqftInput');
+      const paintGrade = document.getElementById('paintGrade');
+      const prepLevel = document.getElementById('prepLevel');
+      const highCeilings = document.getElementById('highCeilings');
+      const includeDoorsTrim = document.getElementById('includeDoorsTrim');
+      const scopeButtons = document.querySelectorAll('.scope-btn');
+      
+      // Displays
+      const estimateDisplay = document.getElementById('estimateDisplay');
+      const laborCostDisplay = document.getElementById('laborCost');
+      const materialCostDisplay = document.getElementById('materialCost');
+      const laborBar = document.getElementById('laborBar');
+      const materialBar = document.getElementById('materialBar');
+      const summaryScope = document.getElementById('summaryScope');
+      const summaryArea = document.getElementById('summaryArea');
+      const summaryDays = document.getElementById('summaryDays');
+
+      let currentBaseRate = 2.25;
+      let currentScopeText = 'Interior Walls';
+
+      function calculateEstimate() {
+        const sqft = parseFloat(sqftInput.value) || 0;
+        const paintExtra = parseFloat(paintGrade.value) || 0;
+        const prepExtra = parseFloat(prepLevel.value) || 0;
+
+        // Base Calculations
+        let baseSqFtRate = currentBaseRate + paintExtra + prepExtra;
+        let baseLabor = sqft * (baseSqFtRate * 0.65);
+        let baseMaterials = sqft * (baseSqFtRate * 0.35);
+
+        // Multipliers
+        let multiplier = 1.0;
+        if (highCeilings.checked) multiplier += 0.15;
+        if (includeDoorsTrim.checked) multiplier += 0.20;
+
+        const totalLabor = baseLabor * multiplier;
+        const totalMaterials = baseMaterials * multiplier;
+
+        const totalLow = Math.round((totalLabor + totalMaterials) * 0.95);
+        const totalHigh = Math.round((totalLabor + totalMaterials) * 1.10);
+
+        // Update UI
+        estimateDisplay.textContent = `$${totalLow.toLocaleString()} - $${totalHigh.toLocaleString()}`;
+        laborCostDisplay.textContent = `$${Math.round(totalLabor).toLocaleString()}`;
+        materialCostDisplay.textContent = `$${Math.round(totalMaterials).toLocaleString()}`;
+
+        // Dynamic progress bar percentages
+        const combined = totalLabor + totalMaterials;
+        const laborPct = Math.round((totalLabor / combined) * 100);
+        const matPct = 100 - laborPct;
+        laborBar.style.width = `${laborPct}%`;
+        materialBar.style.width = `${matPct}%`;
+
+        // Summary details
+        summaryScope.textContent = currentScopeText;
+        summaryArea.textContent = `${sqft.toLocaleString()} sq ft`;
+        
+        // Estimated Days
+        if (sqft < 400) summaryDays.textContent = '1 Day';
+        else if (sqft < 1200) summaryDays.textContent = '1 - 2 Days';
+        else if (sqft < 2500) summaryDays.textContent = '2 - 3 Days';
+        else summaryDays.textContent = '4+ Days';
+      }
+
+      // Event Listeners
+      sqftSlider.addEventListener('input', (e) => {
+        sqftInput.value = e.target.value;
+        calculateEstimate();
+      });
+
+      sqftInput.addEventListener('input', (e) => {
+        sqftSlider.value = e.target.value;
+        calculateEstimate();
+      });
+
+      scopeButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          scopeButtons.forEach(b => {
+            b.classList.remove('active', 'border-brand-red', 'bg-red-50', 'text-brand-red');
+            b.classList.add('border-zinc-200', 'text-zinc-600');
+          });
+          btn.classList.add('active', 'border-brand-red', 'bg-red-50', 'text-brand-red');
+          btn.classList.remove('border-zinc-200', 'text-zinc-600');
+
+          currentBaseRate = parseFloat(btn.getAttribute('data-rate'));
+          currentScopeText = btn.getAttribute('data-scope');
+          calculateEstimate();
+        });
+      });
+
+      [paintGrade, prepLevel, highCeilings, includeDoorsTrim].forEach(input => {
+        input.addEventListener('change', calculateEstimate);
+      });
+
+      // Initial Call
+      calculateEstimate();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+<div class="grid-stack-item-content !border-slate-800 bg-gradient-to-r from-slate-900 via-zinc-900 to-slate-900 text-white shadow-xl" data-block-id="tier">
+  <div class="widget-header !bg-black/40 !border-white/10">
+    <span id="tier-header-label" class="font-bold text-xs text-red-400 uppercase tracking-wider">🏆 STANDARD MEMBER STATUS</span>
+    <button type="button" onclick="removeBlock('tier', false)" class="text-slate-400 hover:text-white text-sm font-bold">&times;</button>
+  </div>
+  <div class="p-6 flex items-center justify-between gap-6 h-full">
+    <div class="flex items-center gap-6">
+      <div class="flex items-center justify-center p-2">
+        <img id="tier-emblem-img" src="/Standard.jpg" alt="Tier Emblem" class="tier-emblem-large emblem-standard" onerror="this.src='/Standard.jpg'" />
+      </div>
+      <div>
+        <span id="tier-badge" class="text-[10px] uppercase font-bold tracking-widest px-2.5 py-1 rounded border bg-red-500/10 text-red-400 border-red-500/20">Current Rank</span>
+        <h2 id="tier-name-title" class="text-2xl font-black text-white mt-2">Standard Member</h2>
+        <p class="text-xs text-slate-300 mt-1">Lifetime Account Spend: <span id="tier-spend-text" class="font-bold text-red-400">$0.00</span></p>
+      </div>
+    </div>
+  </div>
+</div>

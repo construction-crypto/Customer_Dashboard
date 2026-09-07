@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Paint Color & Finish Studio</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'brand-red': '#dc2626',
+            'brand-black': '#18181b'
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-zinc-100 p-4 md:p-8 font-sans">
+
+  <div class="max-w-6xl mx-auto bg-white p-6 rounded-lg shadow border border-zinc-200" id="color-studio-card">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-6">
+      <div>
+        <h3 class="font-black text-xl uppercase tracking-wide text-zinc-900">Paint Color & Finish Studio</h3>
+        <p class="text-xs text-zinc-500 mt-0.5">Explore premium paint lines, surface-matched recommendations, and choose direct DIY buying or full contractor supply.</p>
+      </div>
+      <span class="text-[10px] bg-brand-red text-white font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">
+        Pro Color Matcher
+      </span>
+    </div>
+
+    <div class="bg-zinc-50 border border-zinc-200 p-4 rounded-lg mb-6">
+      <label class="block font-black text-xs uppercase tracking-wider text-zinc-700 mb-2">
+        Step 1: Select Surface Type (Smart Material Advisor)
+      </label>
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 text-xs">
+        <button type="button" onclick="selectSurface('drywall')" class="surface-btn active p-2 border rounded text-center bg-white hover:border-zinc-400 font-bold border-brand-red text-brand-red" id="surf-drywall">Interior Drywall</button>
+        <button type="button" onclick="selectSurface('cabinets')" class="surface-btn p-2 border rounded text-center bg-white hover:border-zinc-400 text-zinc-700" id="surf-cabinets">Wood Cabinets</button>
+        <button type="button" onclick="selectSurface('exterior_wood')" class="surface-btn p-2 border rounded text-center bg-white hover:border-zinc-400 text-zinc-700" id="surf-exterior_wood">Exterior Siding</button>
+        <button type="button" onclick="selectSurface('stucco')" class="surface-btn p-2 border rounded text-center bg-white hover:border-zinc-400 text-zinc-700" id="surf-stucco">Stucco / Masonry</button>
+        <button type="button" onclick="selectSurface('metal')" class="surface-btn p-2 border rounded text-center bg-white hover:border-zinc-400 text-zinc-700" id="surf-metal">Metal / Railing</button>
+        <button type="button" onclick="selectSurface('deck')" class="surface-btn p-2 border rounded text-center bg-white hover:border-zinc-400 text-zinc-700" id="surf-deck">Deck / Porch</button>
+      </div>
+
+      <div id="surface-tip-box" class="mt-3 p-3 bg-amber-50 border border-amber-200 rounded text-xs text-amber-900 flex items-start space-x-2">
+        <span class="text-base">💡</span>
+        <div>
+          <strong id="surface-tip-title">Interior Drywall Tip:</strong>
+          <span id="surface-tip-body">Requires standard PVA primer over new drywall or patch repairs. Satin/Eggshell is ideal for walls; Flat for ceilings.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div class="lg:col-span-7 space-y-4 text-xs">
+        <div>
+          <label class="block font-bold text-zinc-700 uppercase mb-1">Step 2: Choose Paint Brand</label>
+          <div class="grid grid-cols-3 gap-2">
+            <button type="button" onclick="selectBrand('sw')" id="brand-sw" class="brand-btn p-3 border-2 rounded-lg font-black text-center uppercase tracking-wider bg-zinc-900 text-white border-zinc-900">
+              Sherwin-Williams
+            </button>
+            <button type="button" onclick="selectBrand('bm')" id="brand-bm" class="brand-btn p-3 border-2 rounded-lg font-black text-center uppercase tracking-wider bg-zinc-50 text-zinc-700 border-zinc-200 hover:border-zinc-400">
+              Benjamin Moore
+            </button>
+            <button type="button" onclick="selectBrand('val')" id="brand-val" class="brand-btn p-3 border-2 rounded-lg font-black text-center uppercase tracking-wider bg-zinc-50 text-zinc-700 border-zinc-200 hover:border-zinc-400">
+              Valspar
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-zinc-700 uppercase mb-1">Step 3: Select Product Line</label>
+          <select id="paint-line-select" class="w-full p-2.5 border rounded bg-zinc-50 font-bold focus:ring-2 focus:ring-brand-red outline-none" onchange="updateLineDetails()">
+          </select>
+          <p id="line-description" class="text-[11px] text-zinc-500 mt-1 italic">Highest durability, stain resistance, and self-leveling capabilities.</p>
+        </div>
+
+        <div>
+          <label class="block font-bold text-zinc-700 uppercase mb-1">Step 4: Select Finish / Sheen</label>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2" id="finish-selector">
+            <button type="button" onclick="selectFinish('Flat / Matte', this)" class="finish-btn p-2 border rounded font-bold bg-white text-zinc-700 border-zinc-200 hover:border-zinc-400">Flat / Matte</button>
+            <button type="button" onclick="selectFinish('Eggshell / Satin', this)" class="finish-btn p-2 border rounded font-bold bg-brand-red text-white border-brand-red">Eggshell / Satin</button>
+            <button type="button" onclick="selectFinish('Semi-Gloss', this)" class="finish-btn p-2 border rounded font-bold bg-white text-zinc-700 border-zinc-200 hover:border-zinc-400">Semi-Gloss</button>
+            <button type="button" onclick="selectFinish('High Gloss', this)" class="finish-btn p-2 border rounded font-bold bg-white text-zinc-700 border-zinc-200 hover:border-zinc-400">High Gloss</button>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-zinc-700 uppercase mb-1">Step 5: Pick Color Swatch</label>
+          <div class="grid grid-cols-4 sm:grid-cols-6 gap-2" id="swatch-container">
+          </div>
+        </div>
+      </div>
+
+      <div class="lg:col-span-5 flex flex-col justify-between bg-zinc-50 border border-zinc-200 p-4 rounded-lg">
+        <div>
+          <label class="block font-black text-xs uppercase tracking-wider text-zinc-700 mb-2">Live Studio Visualizer</label>
+          <div id="color-preview-box" class="w-full h-40 rounded-lg shadow-inner border border-zinc-300 transition-all duration-300 flex items-center justify-center p-4 text-center relative overflow-hidden" style="background-color: #E6E2DD;">
+            <div id="preview-text-container" class="bg-white/80 backdrop-blur-sm p-3 rounded-md shadow-sm border border-zinc-200/50">
+              <span id="preview-color-name" class="block font-black text-sm text-zinc-900">Alabaster</span>
+              <span id="preview-brand-info" class="block text-[11px] text-zinc-600 font-semibold">Sherwin-Williams • Emerald Interior</span>
+              <span id="preview-sheen" class="inline-block mt-1 text-[10px] bg-zinc-800 text-white font-bold px-2 py-0.5 rounded uppercase">Eggshell / Satin</span>
+            </div>
+          </div>
+
+          <div class="mt-6 space-y-3">
+            <label class="block font-bold text-xs uppercase text-zinc-700">Procurement Option</label>
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <label class="cursor-pointer border p-3 rounded-lg bg-white flex flex-col items-center justify-center border-brand-red bg-red-50/20 text-center" id="proc-contractor-label">
+                <input type="radio" name="procurement" value="contractor" checked class="sr-only" onchange="toggleProcurement('contractor')">
+                <span class="font-bold text-zinc-900">Contractor Provided</span>
+                <span class="text-[10px] text-zinc-500">Save to Project Quote</span>
+              </label>
+
+              <label class="cursor-pointer border p-3 rounded-lg bg-white flex flex-col items-center justify-center border-zinc-200 text-center hover:border-zinc-300" id="proc-diy-label">
+                <input type="radio" name="procurement" value="diy" class="sr-only" onchange="toggleProcurement('diy')">
+                <span class="font-bold text-zinc-900">DIY Direct Order</span>
+                <span class="text-[10px] text-zinc-500">Buy Paint Yourself</span>
+              </label>
+            </div>
+
+            <div id="diy-store-box" class="hidden mt-3 p-3 bg-blue-50 border border-blue-200 rounded text-xs text-blue-900">
+              <p class="font-semibold mb-1">Ordering DIY Direct?</p>
+              <a id="buy-direct-link" href="https://www.sherwin-williams.com" target="_blank" rel="noopener noreferrer" class="inline-flex items-center font-bold text-blue-700 hover:underline">
+                Visit Brand Online Store &rarr;
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <button type="button" onclick="saveConfiguration()" class="w-full mt-6 bg-brand-red text-white font-black py-3 rounded-lg uppercase tracking-wider hover:bg-red-700 transition-colors shadow">
+          Save Color Selection
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const studioData = {
+      surfaces: {
+        drywall: { title: "Interior Drywall Tip:", tip: "Requires standard PVA primer over new drywall or patch repairs. Satin/Eggshell is ideal for walls; Flat for ceilings." },
+        cabinets: { title: "Wood Cabinets Tip:", tip: "Requires degreasing, scuff sanding, and a high-adhesion bonding primer (e.g., shellac or urethane). Semi-Gloss or High Gloss is recommended." },
+        exterior_wood: { title: "Exterior Siding Tip:", tip: "Ensure surface moisture is below 15%. Apply an exterior oil/acrylic primer for tannin blocking before applying satin exterior paint." },
+        stucco: { title: "Stucco / Masonry Tip:", tip: "Use an alkali-resistant masonry primer. Elastomeric or 100% acrylic exterior paints provide optimal waterproofing and flex." },
+        metal: { title: "Metal / Railing Tip:", tip: "Remove rust with a wire brush. Apply a rust-inhibiting direct-to-metal (DTM) primer followed by semi-gloss direct-to-metal enamel." },
+        deck: { title: "Deck / Porch Tip:", tip: "Use heavy-duty porch & floor enamel or solid color deck stains. Avoid regular wall paint as it will peel under foot traffic." }
+      },
+      brands: {
+        sw: {
+          name: "Sherwin-Williams",
+          storeUrl: "https://www.sherwin-williams.com",
+          lines: [
+            { id: "sw-emerald", name: "Emerald Interior Acrylic Latex", desc: "Premium self-leveling finish with superior washability." },
+            { id: "sw-duration", name: "Duration Home Acrylic Latex", desc: "High-durability formula ideal for high-traffic areas." },
+            { id: "sw-superpaint", name: "SuperPaint Acrylic Latex", desc: "Paint and primer in one with excellent coverage." }
+          ],
+          colors: [
+            { name: "Alabaster", hex: "#E6E2DD" },
+            { name: "Pure White", hex: "#EDECE6" },
+            { name: "Repose Gray", hex: "#CCC8C0" },
+            { name: "Mindful Gray", hex: "#BDB8AD" },
+            { name: "Naval", hex: "#2F3D4C" },
+            { name: "Tricorn Black", hex: "#2C2C2B" }
+          ]
+        },
+        bm: {
+          name: "Benjamin Moore",
+          storeUrl: "https://www.benjaminmoore.com",
+          lines: [
+            { id: "bm-aura", name: "Aura Interior Paint", desc: "Proprietary Color Lock technology for unmatched depth." },
+            { id: "bm-regal", name: "Regal Select Interior", desc: "Classic performance, easy application, stain-resistant." },
+            { id: "bm-ben", name: "ben Interior Acrylic", desc: "User-friendly, low-VOC paint for easy maintenance." }
+          ],
+          colors: [
+            { name: "Chantilly Lace", hex: "#F5F6F0" },
+            { name: "Simply White", hex: "#F2F0E6" },
+            { name: "Revere Pewter", hex: "#CBC6B8" },
+            { name: "Hale Navy", hex: "#323E4A" },
+            { name: "Kendall Charcoal", hex: "#535552" },
+            { name: "Swiss Coffee", hex: "#EBE6D8" }
+          ]
+        },
+        val: {
+          name: "Valspar",
+          storeUrl: "https://www.valspar.com",
+          lines: [
+            { id: "val-reserve", name: "Valspar Reserve Interior", desc: "Maximum stain and scuff resistance with exceptional hide." },
+            { id: "val-signature", name: "Valspar Signature", desc: "ScuffShield technology withstands daily wear." },
+            { id: "val-ultra", name: "Valspar Ultra", desc: "Smooth coverage paint and primer combo." }
+          ],
+          colors: [
+            { name: "Swiss Coffee", hex: "#F0ECE1" },
+            { name: "Crisp White", hex: "#FAF9F5" },
+            { name: "Cozy Grey", hex: "#C8C3B8" },
+            { name: "Midnight Blue", hex: "#232F3E" },
+            { name: "Dark Pepper", hex: "#424242" },
+            { name: "Warm Beige", hex: "#DDD3C1" }
+          ]
+        }
+      }
+    };
+
+    let state = {
+      surface: "drywall",
+      brandKey: "sw",
+      selectedLine: studioData.brands.sw.lines[0],
+      sheen: "Eggshell / Satin",
+      color: studioData.brands.sw.colors[0],
+      procurement: "contractor"
+    };
+
+    document.addEventListener("DOMContentLoaded", () => {
+      renderBrandData();
+    });
+
+    function selectSurface(surfaceKey) {
+      state.surface = surfaceKey;
+      document.querySelectorAll(".surface-btn").forEach(btn => {
+        btn.classList.remove("border-brand-red", "text-brand-red", "font-bold");
+        btn.classList.add("text-zinc-700");
+      });
+      const activeBtn = document.getElementById(`surf-${surfaceKey}`);
+      if (activeBtn) activeBtn.classList.add("border-brand-red", "text-brand-red", "font-bold");
+
+      const tipData = studioData.surfaces[surfaceKey];
+      if (tipData) {
+        document.getElementById("surface-tip-title").textContent = tipData.title;
+        document.getElementById("surface-tip-body").textContent = tipData.tip;
+      }
+    }
+
+    function selectBrand(brandKey) {
+      state.brandKey = brandKey;
+      document.querySelectorAll(".brand-btn").forEach(btn => {
+        btn.className = "brand-btn p-3 border-2 rounded-lg font-black text-center uppercase tracking-wider bg-zinc-50 text-zinc-700 border-zinc-200 hover:border-zinc-400";
+      });
+      const activeBrandBtn = document.getElementById(`brand-${brandKey}`);
+      if (activeBrandBtn) activeBrandBtn.className = "brand-btn p-3 border-2 rounded-lg font-black text-center uppercase tracking-wider bg-zinc-900 text-white border-zinc-900";
+
+      const brandData = studioData.brands[brandKey];
+      state.selectedLine = brandData.lines[0];
+      state.color = brandData.colors[0];
+
+      renderBrandData();
+    }
+
+    function renderBrandData() {
+      const brandData = studioData.brands[state.brandKey];
+      const selectEl = document.getElementById("paint-line-select");
+      selectEl.innerHTML = "";
+      brandData.lines.forEach(line => {
+        const option = document.createElement("option");
+        option.value = line.id;
+        option.textContent = line.name;
+        selectEl.appendChild(option);
+      });
+
+      updateLineDetails();
+
+      const swatchContainer = document.getElementById("swatch-container");
+      swatchContainer.innerHTML = "";
+
+      brandData.colors.forEach((c) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = `h-12 rounded-lg border-2 shadow-sm flex items-end p-1 transition-transform hover:scale-105 ${state.color.name === c.name ? 'border-zinc-900 ring-2 ring-brand-red' : 'border-zinc-300'}`;
+        btn.style.backgroundColor = c.hex;
+        btn.onclick = () => selectColor(c);
+
+        const label = document.createElement("span");
+        label.className = "text-[9px] font-extrabold bg-white/90 backdrop-blur-xs px-1 rounded truncate w-full text-zinc-900 text-center";
+        label.textContent = c.name;
+
+        btn.appendChild(label);
+        swatchContainer.appendChild(btn);
+      });
+
+      document.getElementById("buy-direct-link").href = brandData.storeUrl;
+      updatePreview();
+    }
+
+    function updateLineDetails() {
+      const selectEl = document.getElementById("paint-line-select");
+      const brandData = studioData.brands[state.brandKey];
+      const foundLine = brandData.lines.find(l => l.id === selectEl.value);
+
+      if (foundLine) {
+        state.selectedLine = foundLine;
+        document.getElementById("line-description").textContent = foundLine.desc;
+      }
+      updatePreview();
+    }
+
+    function selectFinish(sheen, btnEl) {
+      state.sheen = sheen;
+      document.querySelectorAll(".finish-btn").forEach(btn => {
+        btn.className = "finish-btn p-2 border rounded font-bold bg-white text-zinc-700 border-zinc-200 hover:border-zinc-400";
+      });
+      if (btnEl) {
+        btnEl.className = "finish-btn p-2 border rounded font-bold bg-brand-red text-white border-brand-red";
+      }
+      updatePreview();
+    }
+
+    function selectColor(colorObj) {
+      state.color = colorObj;
+      renderBrandData();
+    }
+
+    function updatePreview() {
+      document.getElementById("color-preview-box").style.backgroundColor = state.color.hex;
+      document.getElementById("preview-color-name").textContent = state.color.name;
+      document.getElementById("preview-brand-info").textContent = `${studioData.brands[state.brandKey].name} • ${state.selectedLine.name}`;
+      document.getElementById("preview-sheen").textContent = state.sheen;
+    }
+
+    function toggleProcurement(type) {
+      state.procurement = type;
+      const contractorLabel = document.getElementById("proc-contractor-label");
+      const diyLabel = document.getElementById("proc-diy-label");
+      const diyBox = document.getElementById("diy-store-box");
+
+      if (type === "diy") {
+        contractorLabel.className = "cursor-pointer border p-3 rounded-lg bg-white flex flex-col items-center justify-center border-zinc-200 text-center hover:border-zinc-300";
+        diyLabel.className = "cursor-pointer border p-3 rounded-lg bg-white flex flex-col items-center justify-center border-brand-red bg-red-50/20 text-center";
+        diyBox.classList.remove("hidden");
+      } else {
+        contractorLabel.className = "cursor-pointer border p-3 rounded-lg bg-white flex flex-col items-center justify-center border-brand-red bg-red-50/20 text-center";
+        diyLabel.className = "cursor-pointer border p-3 rounded-lg bg-white flex flex-col items-center justify-center border-zinc-200 text-center hover:border-zinc-300";
+        diyBox.classList.add("hidden");
+      }
+    }
+
+    function saveConfiguration() {
+      const outputData = {
+        surface: state.surface,
+        brand: studioData.brands[state.brandKey].name,
+        productLine: state.selectedLine.name,
+        colorName: state.color.name,
+        colorHex: state.color.hex,
+        sheen: state.sheen,
+        procurement: state.procurement,
+        timestamp: new Date().toISOString()
+      };
+      localStorage.setItem("customer_selected_color", JSON.stringify(outputData));
+      window.dispatchEvent(new CustomEvent("colorSelected", { detail: outputData }));
+      alert(`Configuration Saved:\n${outputData.brand} - ${outputData.colorName} (${outputData.sheen})`);
+    }
+  </script>
+</body>
+</html>

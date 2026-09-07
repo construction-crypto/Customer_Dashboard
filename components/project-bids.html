@@ -1,0 +1,229 @@
+<div class="bg-white p-6 rounded-lg shadow border border-zinc-200" id="project-bids-card">
+    <!-- Component Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
+        <div>
+            <div class="flex items-center space-x-2">
+                <h3 class="font-black text-xl uppercase tracking-wide text-zinc-900">Your Project Bids & Estimates</h3>
+                <span id="bids-count-badge" class="text-[10px] bg-zinc-800 text-white font-extrabold px-2 py-0.5 rounded uppercase tracking-wider">
+                    0 Active Bids
+                </span>
+            </div>
+            <p class="text-xs text-zinc-500 mt-0.5">Review itemized estimates, scope breakdowns, and approve contracts online.</p>
+        </div>
+        <button onclick="openQuickBidModal()" class="text-xs bg-brand-red hover:bg-red-700 text-white font-bold py-2 px-3 rounded uppercase tracking-wider transition">
+            + Request New Bid
+        </button>
+    </div>
+
+    <!-- Dynamic Bids List / Table -->
+    <div id="bids-list-container" class="space-y-4">
+        <!-- Bids rendered dynamically via JS -->
+    </div>
+
+    <!-- Detailed Bid Inspection Drawer (Modal) -->
+    <div id="bid-detail-modal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white text-slate-900 rounded-lg max-w-2xl w-full p-6 shadow-2xl relative border-t-4 border-brand-red max-h-[90vh] overflow-y-auto">
+            <button onclick="closeBidDetailModal()" class="absolute top-3 right-3 text-zinc-400 hover:text-zinc-700 text-2xl font-bold">&times;</button>
+            
+            <div class="flex justify-between items-start border-b pb-3 mb-4">
+                <div>
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-zinc-400">HANDYMAN PAINTING L.L.C. ESTIMATE</span>
+                    <h3 id="modal-bid-title" class="font-black text-2xl uppercase tracking-tight text-zinc-900">Interior Painting - Main Floor</h3>
+                    <p id="modal-bid-sub" class="text-xs text-zinc-500">Estimate ID: <strong id="modal-bid-id" class="text-zinc-800">BID-8492</strong> | Issued: <span id="modal-bid-date">Aug 9, 2026</span></p>
+                </div>
+                <span id="modal-bid-status" class="text-xs bg-amber-100 text-amber-800 font-extrabold px-3 py-1 rounded-full uppercase">Pending Review</span>
+            </div>
+
+            <!-- Itemized Scope Breakdown Table -->
+            <div class="mb-4">
+                <h4 class="font-extrabold text-xs uppercase tracking-wider text-zinc-700 mb-2">Itemized Scope & Material Breakdown</h4>
+                <div class="border rounded overflow-hidden">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-zinc-100 text-zinc-600 font-bold border-b">
+                            <tr>
+                                <th class="p-2.5">Item / Service Area</th>
+                                <th class="p-2.5">Prep & Material Specs</th>
+                                <th class="p-2.5 text-right">Cost ($)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="modal-bid-items-body" class="divide-y text-zinc-700">
+                            <!-- Items injected dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Total Cost Summary Box -->
+            <div class="bg-zinc-900 text-white p-4 rounded-lg flex justify-between items-center mb-4">
+                <div>
+                    <span class="text-[10px] uppercase font-bold text-zinc-400 block tracking-widest">Guaranteed Total Estimate</span>
+                    <span class="text-xs text-emerald-400 font-medium">Includes Surface Prep, Materials & 2-Year Warranty</span>
+                </div>
+                <div class="text-right">
+                    <span id="modal-bid-total" class="text-2xl font-black text-emerald-400">$1,850.00</span>
+                </div>
+            </div>
+
+            <!-- Actions Footer -->
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-2 pt-2 border-t">
+                <button onclick="window.print()" class="text-xs font-bold text-zinc-600 hover:text-zinc-900 uppercase flex items-center space-x-1">
+                    <span>🖨️ Print / Download PDF</span>
+                </button>
+                <div class="flex space-x-2 w-full sm:w-auto" id="modal-bid-actions">
+                    <!-- Dynamic Accept/Decline buttons -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function initProjectBidsModule() {
+        // Sample default estimates if none exist in localStorage
+        const defaultBids = [
+            {
+                id: "BID-8492",
+                scope: "Interior Painting & Trim Touchup",
+                address: "1012 North 6th Street, Montevideo, MN",
+                date: "2026-08-08",
+                status: "Pending Review",
+                total: 1850.00,
+                notes: "Main living room, dining area, and hallway walls. Includes 2 coats SW Alabaster Satin.",
+                items: [
+                    { service: "Wall Prep & Caulking", specs: "Fill nail holes, sand drywall imperfections, caulk trim joints", cost: 350.00 },
+                    { service: "Wall Application (2 Coats)", specs: "Sherwin-Williams Duration Interior (Satin Finish)", cost: 1100.00 },
+                    { service: "Baseboard & Trim Painting", specs: "Sherwin-Williams Emerald Trim Enamel (Semi-Gloss)", cost: 400.00 }
+                ]
+            }
+        ];
+
+        function getStoredBids() {
+            const raw = localStorage.getItem("customer_bids");
+            if (!raw) {
+                localStorage.setItem("customer_bids", JSON.stringify(defaultBids));
+                return defaultBids;
+            }
+            return JSON.parse(raw);
+        }
+
+        window.renderBidsList = function() {
+            const bids = getStoredBids();
+            const container = document.getElementById("bids-list-container");
+            const badge = document.getElementById("bids-count-badge");
+
+            if (badge) badge.innerText = `${bids.length} Total Bid${bids.length === 1 ? '' : 's'}`;
+
+            if (!container) return;
+
+            if (bids.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 border-2 border-dashed border-zinc-200 rounded-lg">
+                        <p class="font-bold text-zinc-700 text-sm">NO OPEN BID REQUESTS</p>
+                        <p class="text-xs text-zinc-400 mt-1 max-w-sm mx-auto">Submit a bid request to track itemized estimates, scope breakdowns, and approvals here.</p>
+                        <button onclick="openQuickBidModal()" class="mt-3 text-xs bg-brand-red text-white font-bold px-4 py-2 rounded uppercase hover:bg-red-700 transition">
+                            + Request Project Bid
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = bids.map(bid => {
+                let statusBadge = "bg-amber-100 text-amber-800 border-amber-300";
+                if (bid.status === "Approved" || bid.status === "Accepted") statusBadge = "bg-emerald-100 text-emerald-800 border-emerald-300";
+                if (bid.status === "Declined") statusBadge = "bg-red-100 text-red-800 border-red-300";
+
+                const displayTotal = bid.total ? `$${bid.total.toLocaleString('en-US', { minimumFractionDigits: 2 })}` : "Pending Site Visit";
+
+                return `
+                    <div class="bg-zinc-50 border border-zinc-200 p-4 rounded-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4 transition hover:border-zinc-300">
+                        <div class="space-y-1">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-[10px] font-mono font-bold bg-zinc-200 px-1.5 py-0.5 rounded text-zinc-700">${bid.id}</span>
+                                <span class="text-xs ${statusBadge} font-extrabold px-2 py-0.5 rounded border uppercase text-[10px]">${bid.status}</span>
+                                <span class="text-xs text-zinc-400">| ${bid.date}</span>
+                            </div>
+                            <h4 class="font-extrabold text-base text-zinc-900 uppercase">${bid.scope}</h4>
+                            <p class="text-xs text-zinc-500">${bid.address}</p>
+                            ${bid.notes ? `<p class="text-xs text-zinc-600 italic">"${bid.notes}"</p>` : ''}
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full md:w-auto border-t md:border-t-0 pt-3 md:pt-0">
+                            <div class="text-left md:text-right">
+                                <span class="text-[10px] font-bold text-zinc-400 uppercase block">Estimate Amount</span>
+                                <span class="text-lg font-black text-zinc-900">${displayTotal}</span>
+                            </div>
+                            <button onclick="inspectBid('${bid.id}')" class="w-full sm:w-auto bg-brand-black hover:bg-zinc-800 text-white font-bold py-2 px-4 rounded text-xs uppercase tracking-wider transition whitespace-nowrap">
+                                View Itemized Estimate →
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join("");
+        };
+
+        window.inspectBid = function(bidId) {
+            const bids = getStoredBids();
+            const bid = bids.find(b => b.id === bidId);
+            if (!bid) return;
+
+            document.getElementById("modal-bid-title").innerText = bid.scope;
+            document.getElementById("modal-bid-id").innerText = bid.id;
+            document.getElementById("modal-bid-date").innerText = bid.date;
+            document.getElementById("modal-bid-status").innerText = bid.status;
+
+            const itemsBody = document.getElementById("modal-bid-items-body");
+            const items = bid.items || [
+                { service: "On-Site Evaluation & Measurement", specs: "Pending detailed site review", cost: 0 },
+                { service: "Labor & Paint Materials", specs: "To be determined during site visit", cost: 0 }
+            ];
+
+            itemsBody.innerHTML = items.map(item => `
+                <tr>
+                    <td class="p-2.5 font-bold">${item.service}</td>
+                    <td class="p-2.5 text-zinc-500">${item.specs}</td>
+                    <td class="p-2.5 text-right font-mono font-bold">$${item.cost.toFixed(2)}</td>
+                </tr>
+            `).join("");
+
+            const total = bid.total || 0;
+            document.getElementById("modal-bid-total").innerText = total > 0 ? `$${total.toLocaleString('en-US', { minimumFractionDigits: 2 })}` : "TBD On-Site";
+
+            const actionsDiv = document.getElementById("modal-bid-actions");
+            if (bid.status === "Approved" || bid.status === "Accepted") {
+                actionsDiv.innerHTML = `<span class="text-xs text-emerald-600 font-bold uppercase py-2">✓ Contract Approved & Scheduled</span>`;
+            } else {
+                actionsDiv.innerHTML = `
+                    <button onclick="updateBidStatus('${bid.id}', 'Declined')" class="px-3 py-2 border border-zinc-300 hover:bg-zinc-100 text-zinc-700 font-bold rounded uppercase text-xs">Decline</button>
+                    <button onclick="updateBidStatus('${bid.id}', 'Approved')" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded uppercase text-xs">Accept & Approve Bid</button>
+                `;
+            }
+
+            document.getElementById("bid-detail-modal").classList.remove("hidden");
+        };
+
+        window.closeBidDetailModal = function() {
+            document.getElementById("bid-detail-modal").classList.add("hidden");
+        };
+
+        window.updateBidStatus = function(bidId, newStatus) {
+            const bids = getStoredBids();
+            const index = bids.findIndex(b => b.id === bidId);
+            if (index !== -1) {
+                bids[index].status = newStatus;
+                localStorage.setItem("customer_bids", JSON.stringify(bids));
+                renderBidsList();
+                closeBidDetailModal();
+                alert(`Bid ${bidId} status updated to: ${newStatus}`);
+            }
+        };
+
+        // Listen for bid updates from header modal
+        window.addEventListener("bidsUpdated", function() {
+            renderBidsList();
+        });
+
+        // Initial render
+        renderBidsList();
+    })();
+</script>

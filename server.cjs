@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
 const { CognitoJwtVerifier } = require('aws-jwt-verify');
 const db = require('./db/db.cjs');
 
@@ -17,13 +18,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(__dirname));
 
-// Optional / Bypass Auth middleware for local debugging or valid Cognito Bearer token
+// Serve component HTML files explicitly
+app.use('/components', express.static(path.join(__dirname, 'components')));
+
 async function authenticateCognitoToken(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
 
   if (!token) {
-    // If no token, fall back to default user for local testing
     req.user = {
       sub: 'local-dev-user-id',
       email: 'john.doe@example.com',
@@ -48,7 +50,19 @@ async function authenticateCognitoToken(req, res, next) {
   }
 }
 
-// Handler for both /api/customer/dashboard-data and /api/customer/dashboard-data/:id
+// Render dynamic block component
+app.get('/api/components/:name', (req, res) => {
+  const componentName = req.params.name.replace(/[^a-zA-Z0-0_-]/g, '');
+  const filePath = path.join(__dirname, 'components', `${componentName}.html`);
+
+  if (fs.existsSync(filePath)) {
+    res.sendFile(filePath);
+  } else {
+    res.status(404).send(`<div class="p-4 text-red-500">Component "${componentName}" not found.</div>`);
+  }
+});
+
+// Dashboard Data API
 app.get(['/api/customer/dashboard-data', '/api/customer/dashboard-data/:id'], authenticateCognitoToken, async (req, res) => {
   const { email, sub, name, role } = req.user;
 
@@ -65,7 +79,6 @@ app.get(['/api/customer/dashboard-data', '/api/customer/dashboard-data/:id'], au
     }
 
     const user = userRes.rows[0];
-
     const projectsRes = await db.query(
       'SELECT id, title, status, type, color, sqft, notes FROM projects WHERE user_email = $1 ORDER BY created_at DESC',
       [email]
@@ -84,7 +97,7 @@ app.get(['/api/customer/dashboard-data', '/api/customer/dashboard-data/:id'], au
   }
 });
 
-// Handler for both /api/customer/layout and /api/customer/layout/:id
+// Save Layout API
 app.post(['/api/customer/layout', '/api/customer/layout/:id'], authenticateCognitoToken, async (req, res) => {
   const { email } = req.user;
   const { layout } = req.body;
@@ -100,7 +113,7 @@ app.post(['/api/customer/layout', '/api/customer/layout/:id'], authenticateCogni
   }
 });
 
-// Handler for /api/customer/estimates
+// Create Estimate API
 app.post('/api/customer/estimates', authenticateCognitoToken, async (req, res) => {
   const { email } = req.user;
   const { title, type, color, sqft, notes } = req.body;
@@ -123,5 +136,5 @@ app.post('/api/customer/estimates', authenticateCognitoToken, async (req, res) =
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running with PostgreSQL + AWS Cognito at http://localhost:${PORT}`);
+  console.log(`Customer Dashboard running at http://localhost:${PORT}`);
 });
