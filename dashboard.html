@@ -5,57 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Client Portal | Handyman Painting L.L.C.</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Gridstack Drag & Drop -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gridstack@10.0.1/dist/gridstack.min.css" />
   <script src="https://cdn.jsdelivr.net/npm/gridstack@10.0.1/dist/gridstack-all.js"></script>
   <style>
-    .grid-stack-item-content {
-      background: #ffffff;
-      border-radius: 0.5rem;
-      border: 1px solid #e2e8f0;
-      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
-      overflow: hidden;
-      transition: border-color 0.15s ease, box-shadow 0.15s ease;
-    }
-    .grid-stack-item-content:hover {
-      border-color: #cbd5e1;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-    }
+    .grid-stack-item-content { background: #ffffff; border-radius: 0.5rem; border: 1px solid #e2e8f0; overflow: hidden; }
     .drag-handle { cursor: grab; }
     .drag-handle:active { cursor: grabbing; }
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #f1f5f9; }
-    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col font-sans antialiased">
 
   <header class="bg-slate-900 text-white border-b border-slate-800 px-6 py-2 flex items-center justify-between sticky top-0 z-30 shadow-xs">
-    <div class="flex items-center gap-4">
-      <div class="flex items-center gap-3">
-        <img src="./logo.jpg" alt="Handyman Painting L.L.C. Logo" class="h-9 w-auto rounded border border-slate-700 bg-black p-0.5" />
-        <div>
-          <h1 class="font-semibold text-sm tracking-tight text-slate-100 flex items-center gap-2">
-            Handyman Painting L.L.C.
-            <span id="nav-tier-badge" class="text-[10px] font-medium bg-slate-800 text-slate-300 border border-slate-700 px-2 py-0.5 rounded uppercase tracking-wider">Standard Tier</span>
-          </h1>
-        </div>
-      </div>
+    <div class="flex items-center gap-3">
+      <img src="./logo.jpg" alt="Handyman Painting L.L.C. Logo" class="h-9 w-auto rounded border border-slate-700 bg-black p-0.5" />
+      <h1 class="font-semibold text-sm text-slate-100 flex items-center gap-2">
+        Handyman Painting L.L.C.
+        <span id="nav-tier-badge" class="text-[10px] font-medium bg-slate-800 text-slate-300 border border-slate-700 px-2 py-0.5 rounded uppercase">Standard Tier</span>
+      </h1>
     </div>
 
     <div class="flex items-center gap-3">
       <div class="text-right border-r border-slate-800 pr-3 hidden sm:block">
-        <div id="nav-user-email" class="text-xs font-medium text-slate-200">user@example.com</div>
+        <div id="nav-user-email" class="text-xs font-medium text-slate-200">Loading...</div>
         <div id="nav-user-role" class="text-[10px] text-slate-400 capitalize">Client Account</div>
       </div>
-      <button type="button" onclick="openCatalogModal()" class="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-medium text-xs rounded transition flex items-center gap-1.5 shadow-xs">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-        Customize Workspace
-      </button>
-      <button type="button" onclick="handleLogout()" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-xs rounded border border-slate-700 transition">
-        Log Out
-      </button>
+      <button type="button" onclick="handleLogout()" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-xs rounded border border-slate-700 transition">Log Out</button>
     </div>
   </header>
 
@@ -63,346 +37,148 @@
     <div id="dashboard-grid" class="grid-stack min-h-[85vh]"></div>
   </main>
 
-  <div id="block-catalog-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
-    <div class="bg-white rounded-lg border border-slate-200 max-w-2xl w-full p-5 space-y-4 shadow-xl text-slate-800">
+  <!-- PayPal Checkout Modal -->
+  <div id="paypal-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
+    <div class="bg-white rounded-lg border border-slate-200 max-w-md w-full p-6 space-y-4 shadow-xl">
       <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-        <div>
-          <h3 class="font-semibold text-slate-900 text-sm">Workspace Catalog</h3>
-          <p class="text-xs text-slate-500 mt-0.5">Select modules to display on your workspace grid.</p>
-        </div>
-        <button type="button" onclick="closeCatalogModal()" class="text-slate-400 hover:text-slate-600 font-medium text-sm">✕</button>
+        <h3 class="font-semibold text-slate-900 text-sm">Pay Outstanding Invoice</h3>
+        <button type="button" onclick="closePaypalModal()" class="text-slate-400 hover:text-slate-600 font-medium text-sm">✕</button>
       </div>
-
-      <div id="add-block-modal-content" class="grid grid-cols-1 md:grid-cols-2 gap-2.5 max-h-[60vh] overflow-y-auto pr-1"></div>
-
-      <div class="flex justify-end pt-3 border-t border-slate-100">
-        <button type="button" onclick="closeCatalogModal()" class="px-4 py-1.5 bg-slate-900 text-white font-medium text-xs rounded hover:bg-slate-800 transition">
-          Apply & Close
-        </button>
-      </div>
+      <p class="text-xs text-slate-600">Complete your payment securely via PayPal or Credit Card.</p>
+      <div id="paypal-button-container"></div>
     </div>
   </div>
 
   <script>
     let grid = null;
-    const activeBlockIds = new Set();
-    const STORAGE_KEY = 'hd_workspace_grid_layout_v1';
+    let selectedInvoiceId = null;
 
-    const AVAILABLE_BLOCKS = [
-      { id: 'header-greeting', name: 'Header & Greeting', category: 'General', icon: '📋', desc: 'Overview banner and greeting', w: 12, h: 3 },
-      { id: 'profile-property', name: 'Profile & Property Settings', category: 'Account', icon: '⚙️', desc: 'Contact details, site rules, location settings', w: 12, h: 7 },
-      { id: 'tier-block', name: 'Tier & Benefits', category: 'Account', icon: '⭐', desc: 'Membership tier details', w: 12, h: 3 },
-      { id: 'projects-block', name: 'Active Projects', category: 'Operations', icon: '📊', desc: 'Track ongoing job site activity', w: 6, h: 4 },
-      { id: 'invoices-block', name: 'Invoices & Billing', category: 'Finance', icon: '💳', desc: 'Outstanding balances and ledger summary', w: 6, h: 4 },
-      { id: 'color-studio-block', name: 'Color Studio', category: 'Design', icon: '🎨', desc: 'Palette management and visualizer', w: 6, h: 4 },
-      { id: 'builder-block', name: 'Project Builder', category: 'Operations', icon: '🛠️', desc: 'Scope definition and estimate builder', w: 6, h: 5 },
-      { id: 'account-overview', name: 'Account Overview', category: 'Account', icon: '👤', desc: 'Summary of account standing', w: 6, h: 4 },
-      { id: 'budget-estimator', name: 'Budget Estimator', category: 'Finance', icon: '🧮', desc: 'Project cost calculation tool', w: 6, h: 5 },
-      { id: 'checklist-warranty', name: 'Checklist & Warranty', category: 'Operations', icon: '🛡️', desc: 'Completion records and coverage', w: 6, h: 4 },
-      { id: 'contact-bid-request', name: 'Bid Requests', category: 'Operations', icon: '📬', desc: 'Inquiries and bid submission', w: 6, h: 5 },
-      { id: 'direct-dispatch', name: 'Direct Dispatch', category: 'Support', icon: '⚡', desc: 'Priority dispatch interface', w: 6, h: 4 },
-      { id: 'job-photos', name: 'Job Site Documentation', category: 'Media', icon: '📷', desc: 'High-res site photo archives', w: 6, h: 4 },
-      { id: 'mixer-block', name: 'Paint Mixer Block', category: 'Design', icon: '🧪', desc: 'Custom paint mixing engine', w: 6, h: 4 },
-      { id: 'paint-calculator', name: 'Paint Calculator', category: 'Tools', icon: '📏', desc: 'Coverage and gallon calculator', w: 6, h: 4 },
-      { id: 'project-bids', name: 'Proposals & Bids', category: 'Finance', icon: '📄', desc: 'Review active bids and quotes', w: 6, h: 5 },
-      { id: 'schedule-assessment', name: 'Schedule Assessment', category: 'Operations', icon: '📅', desc: 'Book site consultations', w: 6, h: 5 },
-      { id: 'settings-block', name: 'Quick Preferences', category: 'Settings', icon: '🔧', desc: 'System preferences', w: 6, h: 3 },
-      { id: 'showcase-block', name: 'Showcase Gallery', category: 'Media', icon: '🖼️', desc: 'Completed project portfolios', w: 6, h: 4 },
-      { id: 'weather-widget', name: 'Weather Forecast', category: 'Tools', icon: '🌤️', desc: 'Site climate & weather tracking', w: 6, h: 3 }
-    ];
+    // Dynamic API base URL: defaults to production backend on external domains
+    const API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+      ? 'http://localhost:4000'
+      : 'https://api.construction.seemoneyproductions.com';
 
-    const TIER_DEFINITIONS = {
-      'Standard': {
-        name: 'Standard Client',
-        badgeClass: 'bg-slate-100 text-slate-700 border-slate-300',
-        perks: 'Standard Scheduling • Regular Quote Queue • Standard Paint Warranty',
-        discount: '0%'
-      },
-      'Preferred': {
-        name: 'Preferred Partner',
-        badgeClass: 'bg-blue-100 text-blue-800 border-blue-300',
-        perks: 'Priority Scheduling • 5% Paint Discount • Dedicated Site Lead',
-        discount: '5%'
-      },
-      'Supreme': {
-        name: 'Supreme VIP',
-        badgeClass: 'bg-amber-100 text-amber-900 border-amber-300',
-        perks: 'Express Crew Deployment • 10% Material Discount • Annual Maintenance Check',
-        discount: '10%'
-      },
-      'Secret': {
-        name: 'Secret Executive Level',
-        badgeClass: 'bg-purple-900 text-purple-100 border-purple-700',
-        perks: 'Direct CEO Hotline • Instant Dispatch • Custom Color Formulation Lab Access',
-        discount: '15%'
+    async function initPayPalSDK() {
+      try {
+        const res = await fetch(${API_BASE_URL}/api/config/paypal);
+        const { clientId } = await res.json();
+
+        if (!clientId) {
+          console.error('PayPal Client ID missing from backend configuration.');
+          return;
+        }
+
+        const script = document.createElement('script');
+        script.src = https://www.paypal.com/sdk/js?client-id=&currency=USD;
+        script.onload = () => console.log('PayPal SDK loaded dynamically and securely.');
+        document.head.appendChild(script);
+      } catch (err) {
+        console.error('Error fetching PayPal public client ID:', err);
       }
-    };
-
-    function determineUserTier(email, role) {
-      if (!email) return 'Standard';
-      const cleanEmail = email.toLowerCase().trim();
-
-      if (cleanEmail.includes('admin') || cleanEmail.includes('exec') || cleanEmail.includes('secret') || role === 'admin') {
-        return 'Secret';
-      }
-      if (cleanEmail.includes('vip') || cleanEmail.includes('supreme') || cleanEmail.includes('owner')) {
-        return 'Supreme';
-      }
-      if (cleanEmail.includes('partner') || cleanEmail.includes('preferred') || role === 'contractor') {
-        return 'Preferred';
-      }
-      return 'Standard';
-    }
-
-    function deriveDisplayName(email) {
-      if (!email) return 'Valued Client';
-      const namePart = email.split('@')[0];
-      return namePart.replace(/[._-]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
     }
 
     window.PortalEngine = {
-      state: {
-        account: null,
-        property: null,
-        projects: [],
-        financials: null
-      },
+      state: null,
 
-      async init() {
-        this.fetchAuthSession();
-        this.bindDataToDOM();
-      },
+      async fetchAuthSession() {
+        const token = localStorage.getItem('userToken');
+        if (!token) {
+          window.location.href = 'login.html';
+          return;
+        }
 
-      fetchAuthSession() {
-        const email = localStorage.getItem('userEmail') || 'jessebautistaaaa@gmail.com';
-        const role = localStorage.getItem('userRole') || 'customer';
-        const tierKey = determineUserTier(email, role);
-        const tierInfo = TIER_DEFINITIONS[tierKey];
-        const displayName = deriveDisplayName(email);
+        try {
+          const res = await fetch(${API_BASE_URL}/api/dashboard-data, {
+            headers: { 'Authorization': Bearer  }
+          });
 
-        this.state = {
-          account: {
-            name: displayName,
-            email: email,
-            role: role,
-            tier: tierKey,
-            tierInfo: tierInfo,
-            status: 'Authenticated',
-            summary: `Active account status • Membership Classification: <strong class="text-indigo-600">${tierInfo.name}</strong> (${tierInfo.discount} perk discount)`
-          },
-          property: { address: '1248 Oakwood Drive, Austin, TX', type: 'Primary Residence', code: '#4821', notes: '2 Dogs (Secured indoors)', hours: 'Mon–Fri: 8:00 AM – 4:00 PM', instructions: 'Side gate unlocked during scheduled work hours.' },
-          projects: [
-            { name: 'Exterior Trim Refinishing', status: 'In Progress', statusClass: 'bg-amber-50 text-amber-700 border-amber-200/60', step: 'Stage 2 of 4 • Prep & Masking' },
-            { name: 'Custom Cabinet Hardware Install', status: 'Scheduled', statusClass: 'bg-blue-50 text-blue-700 border-blue-200/60', step: 'Scheduled for Sep 12' }
-          ],
-          financials: { outstanding: '$450.00', ytd: '$3,280.00' }
-        };
+          if (!res.ok) {
+            if (res.status === 401 || res.status === 403) {
+              window.location.href = 'login.html';
+              return;
+            }
+            throw new Error('Failed loading portal state');
+          }
+
+          const data = await res.json();
+          this.state = data;
+          this.bindDataToDOM();
+        } catch (err) {
+          console.error('Production Data Sync Error:', err);
+        }
       },
 
       bindDataToDOM() {
-        const { account, property, projects, financials } = this.state;
-
+        if (!this.state || !this.state.customer) return;
+        const c = this.state.customer;
         const navEmail = document.getElementById('nav-user-email');
-        if (navEmail) navEmail.innerText = account.email;
-        const navRole = document.getElementById('nav-user-role');
-        if (navRole) navRole.innerText = `${account.role} • ${account.tier} Tier`;
+        if (navEmail) navEmail.innerText = c.email;
         const navBadge = document.getElementById('nav-tier-badge');
-        if (navBadge) {
-          navBadge.innerText = `${account.tier} Tier`;
-          navBadge.className = `text-[10px] font-semibold px-2 py-0.5 rounded border uppercase tracking-wider ${account.tierInfo.badgeClass}`;
-        }
+        if (navBadge) navBadge.innerText = ${c.tier || 'Standard'} Tier;
+      },
 
-        const greetingHeader = document.getElementById('client-welcome-heading');
-        if (greetingHeader) greetingHeader.innerText = `Welcome back, ${account.name}!`;
-        const greetingSubtext = document.getElementById('client-summary-subtext');
-        if (greetingSubtext) greetingSubtext.innerHTML = account.summary;
-
-        const tierNameEl = document.getElementById('tier-display-name');
-        if (tierNameEl) tierNameEl.innerText = account.tierInfo.name;
-        const tierPerksEl = document.getElementById('tier-display-perks');
-        if (tierPerksEl) tierPerksEl.innerText = account.tierInfo.perks;
-        const tierBadgeEl = document.getElementById('tier-display-badge');
-        if (tierBadgeEl) {
-          tierBadgeEl.innerText = account.tier;
-          tierBadgeEl.className = `px-3 py-1 rounded-full text-xs font-bold border uppercase tracking-widest ${account.tierInfo.badgeClass}`;
-        }
-
-        const addrEl = document.getElementById('property-address');
-        if (addrEl) addrEl.innerText = property.address;
-        const listEl = document.getElementById('active-projects-list');
-        if (listEl) {
-          listEl.innerHTML = projects.map(p => `
-            <div class="p-2.5 bg-slate-50 border border-slate-200/60 rounded flex items-center justify-between">
-              <div>
-                <h4 class="text-xs font-semibold text-slate-900">${p.name}</h4>
-                <p class="text-[11px] text-slate-500">${p.step}</p>
-              </div>
-              <span class="px-2 py-0.5 border text-[10px] font-medium rounded ${p.statusClass}">${p.status}</span>
-            </div>
-          `).join('');
-        }
+      initiatePayment(invoiceId) {
+        selectedInvoiceId = invoiceId;
+        const modal = document.getElementById('paypal-modal');
+        if (modal) modal.classList.remove('hidden');
+        renderPaypalButtons();
       }
     };
 
+    function renderPaypalButtons() {
+      const container = document.getElementById('paypal-button-container');
+      container.innerHTML = '';
+      if (typeof paypal === 'undefined') return;
+
+      paypal.Buttons({
+        createOrder: async () => {
+          const token = localStorage.getItem('userToken');
+          const res = await fetch(${API_BASE_URL}/api/paypal/create-order, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': Bearer 
+            },
+            body: JSON.stringify({ invoiceId: selectedInvoiceId })
+          });
+          const data = await res.json();
+          return data.orderID;
+        },
+        onApprove: async (data) => {
+          const token = localStorage.getItem('userToken');
+          const res = await fetch(${API_BASE_URL}/api/paypal/capture-order, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': Bearer 
+            },
+            body: JSON.stringify({ orderID: data.orderID, invoiceId: selectedInvoiceId })
+          });
+          const result = await res.json();
+          if (result.status === 'SUCCESS') {
+            alert('Payment received! Invoice updated.');
+            closePaypalModal();
+            window.PortalEngine.fetchAuthSession();
+          }
+        }
+      }).render('#paypal-button-container');
+    }
+
+    function closePaypalModal() {
+      const modal = document.getElementById('paypal-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
     function handleLogout() {
-      localStorage.removeItem('isLoggedIn');
-      localStorage.removeItem('userToken');
-      localStorage.removeItem('userRole');
-      localStorage.removeItem('userEmail');
+      localStorage.clear();
       window.location.href = 'login.html';
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      grid = GridStack.init({
-        column: 12,
-        cellHeight: 85,
-        margin: 10,
-        float: true,
-        handle: '.drag-handle'
-      });
-
-      grid.on('change', () => {
-        saveLayout();
-      });
-
-      restoreLayout();
+      grid = GridStack.init({ column: 12, cellHeight: 85, margin: 10, float: true });
+      initPayPalSDK();
+      window.PortalEngine.fetchAuthSession();
     });
-
-    function saveLayout() {
-      const items = grid.engine.nodes.map(n => ({
-        id: n.id,
-        x: n.x,
-        y: n.y,
-        w: n.w,
-        h: n.h
-      }));
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-    }
-
-    async function restoreLayout() {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        try {
-          const items = JSON.parse(saved);
-          for (const item of items) {
-            await loadComponentBlock(item.id, item);
-          }
-          window.PortalEngine.init();
-          return;
-        } catch (e) {
-          console.error('Failed restoring layout:', e);
-        }
-      }
-
-      await loadComponentBlock('header-greeting');
-      await loadComponentBlock('tier-block');
-      await loadComponentBlock('profile-property');
-      window.PortalEngine.init();
-    }
-
-    function renderAddBlockModal() {
-      const modalContainer = document.getElementById('add-block-modal-content');
-      if (!modalContainer) return;
-
-      modalContainer.innerHTML = AVAILABLE_BLOCKS.map(block => {
-        const isActive = activeBlockIds.has(block.id);
-        return `
-          <div class="p-3 bg-slate-50 border border-slate-200 rounded flex items-center justify-between transition hover:border-slate-300">
-            <div class="flex items-center gap-2.5">
-              <span class="text-sm p-1.5 bg-white rounded border border-slate-200/80">${block.icon}</span>
-              <div>
-                <div class="flex items-center gap-1.5">
-                  <h4 class="font-medium text-slate-900 text-xs">${block.name}</h4>
-                  <span class="text-[9px] uppercase font-semibold tracking-wider text-slate-500 bg-slate-200/60 px-1 py-0.2 rounded">${block.category}</span>
-                </div>
-                <p class="text-[11px] text-slate-500 leading-tight mt-0.5">${block.desc}</p>
-              </div>
-            </div>
-            ${isActive ? `
-              <button type="button" onclick="removeComponentBlock('${block.id}')" class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 font-medium text-[11px] rounded border border-rose-200 transition">
-                Remove
-              </button>
-            ` : `
-              <button type="button" onclick="loadComponentBlock('${block.id}')" class="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 text-white font-medium text-[11px] rounded transition">
-                + Add
-              </button>
-            `}
-          </div>
-        `;
-      }).join('');
-    }
-
-    async function loadComponentBlock(componentName, overridePos = null) {
-      if (activeBlockIds.has(componentName)) return;
-
-      const config = AVAILABLE_BLOCKS.find(b => b.id === componentName) || { w: 6, h: 4, name: componentName };
-
-      try {
-        const response = await fetch(`./components/${componentName}.html`);
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const html = await response.text();
-
-        const widgetContent = `
-          <div class="h-full flex flex-col relative group">
-            <div class="drag-handle bg-slate-50 hover:bg-slate-100 px-3 py-2 border-b border-slate-200 flex items-center justify-between text-[11px] text-slate-600 font-medium select-none transition">
-              <span class="flex items-center gap-1.5">
-                <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"></path></svg>
-                ${config.name}
-              </span>
-              <button type="button" onclick="removeComponentBlock('${componentName}')" class="text-slate-400 hover:text-rose-600 font-bold text-xs transition">✕</button>
-            </div>
-            <div class="flex-1 overflow-auto p-2">
-              ${html}
-            </div>
-          </div>
-        `;
-
-        const widgetOpts = {
-          id: componentName,
-          w: overridePos ? overridePos.w : config.w,
-          h: overridePos ? overridePos.h : config.h,
-          content: widgetContent
-        };
-
-        if (overridePos) {
-          widgetOpts.x = overridePos.x;
-          widgetOpts.y = overridePos.y;
-        }
-
-        grid.addWidget(widgetOpts);
-        activeBlockIds.add(componentName);
-        window.PortalEngine.bindDataToDOM();
-        renderAddBlockModal();
-        saveLayout();
-      } catch (err) {
-        console.error(`Failed to fetch component [${componentName}]:`, err);
-      }
-    }
-
-    function removeComponentBlock(componentName) {
-      const el = document.querySelector(`[gs-id="${componentName}"]`) || document.getElementById(componentName);
-      if (el) {
-        grid.removeWidget(el);
-      }
-      activeBlockIds.delete(componentName);
-      renderAddBlockModal();
-      saveLayout();
-    }
-
-    function openCatalogModal() {
-      const modal = document.getElementById('block-catalog-modal');
-      if (modal) {
-        modal.classList.remove('hidden');
-        renderAddBlockModal();
-      }
-    }
-
-    function closeCatalogModal() {
-      const modal = document.getElementById('block-catalog-modal');
-      if (modal) {
-        modal.classList.add('hidden');
-      }
-    }
   </script>
 </body>
 </html>
