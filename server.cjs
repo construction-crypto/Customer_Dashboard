@@ -39,7 +39,7 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
-// Get All Projects for Dashboard
+// Get All Projects
 app.get('/api/projects', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM projects ORDER BY created_at DESC;');
@@ -78,5 +78,5 @@ app.post('/api/projects', async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(Server running on port \);
+  console.log('Server running on port ' + PORT);
 });
