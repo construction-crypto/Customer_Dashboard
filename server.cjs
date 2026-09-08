@@ -31,19 +31,31 @@ async function authenticateToken(req, res, next) {
   }
 }
 
-// Enable CORS for production and all local dev origins (localhost & 127.0.0.1)
-app.use(cors({
-  origin: [
-    'https://construction.seemoneyproductions.com',
-    'http://localhost:3000',
-    'http://localhost:4000',
-    'http://localhost:5500',
-    'http://127.0.0.1:3000',
-    'http://127.0.0.1:4000',
-    'http://127.0.0.1:5500'
-  ],
-  credentials: true
-}));
+const allowedOrigins = [
+  'https://construction.seemoneyproductions.com',
+  'http://localhost:3000',
+  'http://localhost:4000',
+  'http://localhost:5500',
+  'http://127.0.0.1:3000',
+  'http://127.0.0.1:4000',
+  'http://127.0.0.1:5500'
+];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 app.use(express.json());
 
 // Public Health Check
