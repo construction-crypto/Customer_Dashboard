@@ -2,17 +2,38 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const { Pool } = require('pg');
+const { CognitoJwtVerifier } = require('aws-jwt-verify');
 require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-// Database Connection
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+
+// Initialize Cognito JWT Verifier
+const verifier = CognitoJwtVerifier.create({
+  userPoolId: process.env.COGNITO_USER_POOL_ID,
+  tokenUse: 'id',
+  clientId: process.env.COGNITO_CLIENT_ID || 'MyWebAppClient'
 });
 
-// Middleware
+// Auth Middleware
+async function authenticateToken(req, res, next) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Missing or invalid Authorization header' });
+  }
+
+  const token = authHeader.split(' ')[1];
+  try {
+    const payload = await verifier.verify(token);
+    req.user = payload;
+    next();
+  } catch (err) {
+    return res.status(403).json({ error: 'Invalid or expired token', details: err.message });
+  }
+}
+
 app.use(cors({
   origin: [
     'https://construction.seemoneyproductions.com',
@@ -22,56 +43,34 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.static(__dirname));
 
-// Health Check Endpoint
+// Health Check (Public)
 app.get('/api/health', async (req, res) => {
   try {
     const dbResult = await pool.query('SELECT current_database(), inet_server_port();');
-    res.json({
-      status: 'ok',
-      timestamp: new Date().toISOString(),
-      database: dbResult.rows[0]
-    });
+    res.json({ status: 'ok', timestamp: new Date().toISOString(), database: dbResult.rows[0] });
   } catch (err) {
     res.status(500).json({ status: 'error', error: err.message });
   }
 });
 
-// Get All Projects
-app.get('/api/projects', async (req, res) => {
+// Protected Customer Profile Route
+app.get('/api/customer/profile', authenticateToken, async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM projects ORDER BY created_at DESC;');
-    res.json(result.rows);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+    const { sub, email } = req.user;
+    let customer = await pool.query('SELECT * FROM customers WHERE cognito_sub = \;', [sub]);
 
-// Get Single Project Details
-app.get('/api/projects/:id', async (req, res) => {
-  const { id } = req.params;
-  try {
-    const result = await pool.query('SELECT * FROM projects WHERE id = ;', [id]);
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Project not found' });
+    // First time login auto-provisioning
+    if (customer.rows.length === 0) {
+      const newCustomer = await pool.query(
+        'INSERT INTO customers (cognito_sub, email) VALUES (\, \) RETURNING *;',
+        [sub, email]
+      );
+      customer = newCustomer;
+      await pool.query('INSERT INTO user_preferences (customer_id) VALUES (\);', [customer.rows[0].id]);
     }
-    res.json(result.rows[0]);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
 
-// Create New Customer Project
-app.post('/api/projects', async (req, res) => {
-  const { title, description, status, total_amount } = req.body;
-  try {
-    const result = await pool.query(
-      'INSERT INTO projects (title, description, status, total_amount) VALUES (, , , ) RETURNING *;',
-      [title, description, status || 'Pending', total_amount || 0]
-    );
-    res.status(201).json(result.rows[0]);
+    res.json(customer.rows[0]);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
