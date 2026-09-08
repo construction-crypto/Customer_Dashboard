@@ -3,6 +3,7 @@ const cors = require('cors');
 const path = require('path');
 const { Pool } = require('pg');
 const { CognitoJwtVerifier } = require('aws-jwt-verify');
+const checkoutNodeJSSdk = require('@paypal/checkout-server-sdk');
 require('dotenv').config();
 
 const app = express();
@@ -10,14 +11,25 @@ const PORT = process.env.PORT || 4000;
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
-// Initialize Cognito JWT Verifier
+function paypalEnvironment() {
+  const clientId = process.env.PAYPAL_CLIENT_ID;
+  const clientSecret = process.env.PAYPAL_CLIENT_SECRET;
+  
+  return process.env.PAYPAL_MODE === 'live'
+    ? new checkoutNodeJSSdk.core.LiveEnvironment(clientId, clientSecret)
+    : new checkoutNodeJSSdk.core.SandboxEnvironment(clientId, clientSecret);
+}
+
+function paypalClient() {
+  return new checkoutNodeJSSdk.core.PayPalHttpClient(paypalEnvironment());
+}
+
 const verifier = CognitoJwtVerifier.create({
   userPoolId: process.env.COGNITO_USER_POOL_ID,
   tokenUse: 'id',
   clientId: process.env.COGNITO_CLIENT_ID
 });
 
-// Auth Middleware
 async function authenticateToken(req, res, next) {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -54,29 +66,13 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
-// Protected Customer Profile & Auto-Provisioning
-app.get('/api/customer/profile', authenticateToken, async (req, res) => {
-  try {
-    const { sub, email, given_name, family_name } = req.user;
-    let customer = await pool.query('SELECT * FROM customers WHERE cognito_sub = \;', [sub]);
-
-    if (customer.rows.length === 0) {
-      const newCustomer = await pool.query(
-        'INSERT INTO customers (cognito_sub, email, first_name, last_name) VALUES (\, \, \, \) RETURNING *;',
-        [sub, email, given_name || '', family_name || '']
-      );
-      customer = newCustomer;
-      await pool.query('INSERT INTO user_preferences (customer_id) VALUES (\);', [customer.rows[0].id]);
-    }
-
-    res.json(customer.rows[0]);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+// Public Endpoint to serve PayPal Client ID to frontend SDK
+app.get('/api/config/paypal', (req, res) => {
+  res.json({ clientId: process.env.PAYPAL_CLIENT_ID });
 });
 
-// Protected Customer Dashboard Data (Projects & Preferences)
-app.get('/api/customer/dashboard', authenticateToken, async (req, res) => {
+// Protected Dashboard Data Endpoint
+app.get('/api/dashboard-data', authenticateToken, async (req, res) => {
   try {
     const { sub } = req.user;
     const customerResult = await pool.query('SELECT * FROM customers WHERE cognito_sub = \;', [sub]);
@@ -97,6 +93,60 @@ app.get('/api/customer/dashboard', authenticateToken, async (req, res) => {
       payments: payments.rows
     });
   } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Create PayPal Order
+app.post('/api/paypal/create-order', authenticateToken, async (req, res) => {
+  const { invoiceId, amount } = req.body;
+  const request = new checkoutNodeJSSdk.orders.OrdersCreateRequest();
+  request.prefer('return=representation');
+  request.requestBody({
+    intent: 'CAPTURE',
+    purchase_units: [{
+      amount: {
+        currency_code: 'USD',
+        value: parseFloat(amount || 100.00).toFixed(2)
+      },
+      custom_id: invoiceId
+    }]
+  });
+
+  try {
+    const order = await paypalClient().execute(request);
+    res.status(201).json({ orderID: order.result.id });
+  } catch (err) {
+    console.error('PayPal Order Error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Capture PayPal Order
+app.post('/api/paypal/capture-order', authenticateToken, async (req, res) => {
+  const { orderID, invoiceId } = req.body;
+  const { sub } = req.user;
+
+  try {
+    const customerResult = await pool.query('SELECT id FROM customers WHERE cognito_sub = \;', [sub]);
+    if (customerResult.rows.length === 0) return res.status(404).json({ error: 'Customer not found' });
+
+    const request = new checkoutNodeJSSdk.orders.OrdersCaptureRequest(orderID);
+    request.requestBody({});
+    const capture = await paypalClient().execute(request);
+
+    const captureDetails = capture.result.purchase_units[0].payments.captures[0];
+    const amountPaid = captureDetails.amount.value;
+
+    await pool.query(
+      \INSERT INTO payments (customer_id, paypal_order_id, amount, currency, status, payment_method, metadata)
+       VALUES (\, \, \, 'USD', \, 'PayPal', \);\,
+      [customerResult.rows[0].id, orderID, amountPaid, capture.result.status, JSON.stringify(capture.result)]
+    );
+
+    res.json({ status: 'SUCCESS', capture: capture.result });
+  } catch (err) {
+    console.error('PayPal Capture Error:', err);
     res.status(500).json({ error: err.message });
   }
 });
