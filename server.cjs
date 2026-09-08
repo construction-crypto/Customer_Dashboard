@@ -14,7 +14,7 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const verifier = CognitoJwtVerifier.create({
   userPoolId: process.env.COGNITO_USER_POOL_ID,
   tokenUse: 'id',
-  clientId: process.env.COGNITO_CLIENT_ID || 'MyWebAppClient'
+  clientId: process.env.COGNITO_CLIENT_ID
 });
 
 // Auth Middleware
@@ -44,7 +44,7 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Health Check (Public)
+// Public Health Check
 app.get('/api/health', async (req, res) => {
   try {
     const dbResult = await pool.query('SELECT current_database(), inet_server_port();');
@@ -54,23 +54,48 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
-// Protected Customer Profile Route
+// Protected Customer Profile & Auto-Provisioning
 app.get('/api/customer/profile', authenticateToken, async (req, res) => {
   try {
-    const { sub, email } = req.user;
+    const { sub, email, given_name, family_name } = req.user;
     let customer = await pool.query('SELECT * FROM customers WHERE cognito_sub = \;', [sub]);
 
-    // First time login auto-provisioning
     if (customer.rows.length === 0) {
       const newCustomer = await pool.query(
-        'INSERT INTO customers (cognito_sub, email) VALUES (\, \) RETURNING *;',
-        [sub, email]
+        'INSERT INTO customers (cognito_sub, email, first_name, last_name) VALUES (\, \, \, \) RETURNING *;',
+        [sub, email, given_name || '', family_name || '']
       );
       customer = newCustomer;
       await pool.query('INSERT INTO user_preferences (customer_id) VALUES (\);', [customer.rows[0].id]);
     }
 
     res.json(customer.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Protected Customer Dashboard Data (Projects & Preferences)
+app.get('/api/customer/dashboard', authenticateToken, async (req, res) => {
+  try {
+    const { sub } = req.user;
+    const customerResult = await pool.query('SELECT * FROM customers WHERE cognito_sub = \;', [sub]);
+    
+    if (customerResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Customer profile not found' });
+    }
+
+    const customer = customerResult.rows[0];
+    const projects = await pool.query('SELECT * FROM projects WHERE customer_id = \ ORDER BY created_at DESC;', [customer.id]);
+    const preferences = await pool.query('SELECT * FROM user_preferences WHERE customer_id = \;', [customer.id]);
+    const payments = await pool.query('SELECT * FROM payments WHERE customer_id = \ ORDER BY created_at DESC;', [customer.id]);
+
+    res.json({
+      customer,
+      projects: projects.rows,
+      preferences: preferences.rows[0] || {},
+      payments: payments.rows
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
